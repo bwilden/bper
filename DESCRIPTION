@@ -1,12 +1,11 @@
 Package: bper
-Title: What the Package Does (One Line, Title Case)
+Title: Bayesian Prediction for Ethnicity and Race
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Bertrand",
+           family = "Wilden",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "bwilden@ucsd.edu")
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -15,3 +14,6 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests: 
     testthat
+Imports: 
+    dplyr,
+    readr
