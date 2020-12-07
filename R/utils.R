@@ -5,3 +5,5 @@ arg_max_cols <- function(df, num_cols, max_col_name = "max_col") {
   df[[max_col_name]] <- max_col
   return(df)
 }
+
+test <- "a"
