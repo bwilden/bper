@@ -1,7 +1,9 @@
 
-df <- data.frame(a = c(0.3, 0.5),
-                 b = c(0.2, 0.7),
-                 c = c(0.1, 0.8))
+df <- data.frame(
+  a = c(0.3, 0.5),
+  b = c(0.2, 0.7),
+  c = c(0.1, 0.8)
+)
 
 test_that("arg_max_cols() returns appropriate data frame", {
   arg_max_df <- arg_max_cols(df, num_cols = ncol(df))
