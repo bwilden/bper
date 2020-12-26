@@ -1,15 +1,16 @@
 
 predict_race <- function(df, dichotomize = F) {
 
-  missing_blocks <- df %>%
-    dplyr::anti_join(blocks, by = "block") %>%
-    dplyr::left_join(zips, by = "zip")
+  # missing_blocks <- df %>%
+  #   dplyr::anti_join(blocks, by = "block") %>%
+  #   dplyr::left_join(zips, by = "zip")
+  #
+  # df <- df %>%
+  #   dplyr::anti_join(missing_blocks, by = "id") %>%
+  #   dplyr::left_join(blocks, by = "block")
 
   df <- df %>%
-    dplyr::anti_join(missing_blocks, by = "id") %>%
-    dplyr::left_join(blocks, by = "block")
-
-  df <- rbind(df, missing_blocks) %>%
+    dplyr::left_join(blocks, by = "block") %>%
     dplyr::left_join(surnames, by = "last_name") %>%
     dplyr::left_join(firstnames, by = "first_name") %>%
     dplyr::left_join(parties, by = "party") %>%
@@ -169,7 +170,9 @@ predict_race <- function(df, dichotomize = F) {
 
 
   # Calculate highest posterior probability and impute race/ethnicity label
-  df$pred_race <- gsub(".*_", "", (arg_max_cols(df, 6)))
+  df <- arg_max_cols(df, 6, max_col_name = "pred_race") %>%
+    dplyr::mutate(pred_race = gsub("prob_", "", pred_race))
+
 
 
   if (dichotomize == TRUE) {
