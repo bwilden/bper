@@ -1,15 +1,15 @@
 
 
 
-test_people <- data.frame(first_name = c("JAKE", "DESHAWN"),
-                          last_name = c("MUELLER", "JACKSON"),
-                          birth_year = c(1992, 1959),
-                          female = c(0, 0),
-                          party = c("DEM", "DEM"),
-                          apartment = c(1, 0),
-                          zip = c("92092", "70113"),
-                          block = c("010010201001000", NA_character_),
-                          id = c(1, 2))
+test_people <- data.frame(first_name = c("MOLLY", "DESHAWN", "ENGELBERT"),
+                          last_name = c("MUELLER", "JACKSON", "HUMPERDINCK"),
+                          birth_year = c(1992, 1959, 1963),
+                          female = c(1, 0, 0),
+                          party = c("DEM", "DEM", "UNA"),
+                          apartment = c(1, 0, 0),
+                          zip = c("92092", "70113", "90210"),
+                          block = c("010010201001000", NA_character_, NA_character_),
+                          id = c(1, 2, 3))
 test_df <- predict_race(test_people)
 test_df_dichot <- predict_race(test_people, dichotomize = T)
 test_df
@@ -41,5 +41,5 @@ test_that("dichotomize argument returns extra columns", {
 })
 
 test_that("dichotomize argument categorizes correctly", {
-  expect_equal(as.character(test_df_dichot$white), c("1", "0"))
+  expect_equal(as.character(test_df_dichot$white), c("1", "0", "1"))
 })
