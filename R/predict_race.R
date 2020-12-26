@@ -1,16 +1,15 @@
 
 predict_race <- function(df, dichotomize = F) {
 
-  # missing_blocks <- df %>%
-  #   dplyr::anti_join(blocks, by = "block") %>%
-  #   dplyr::left_join(zips, by = "zip")
-  #
-  # df <- df %>%
-  #   dplyr::anti_join(missing_blocks, by = "id") %>%
-  #   dplyr::left_join(blocks, by = "block")
+  missing_blocks <- df %>%
+    dplyr::anti_join(blocks, by = "block") %>%
+    dplyr::left_join(zips, by = "zip")
 
   df <- df %>%
-    dplyr::left_join(blocks, by = "block") %>%
+    dplyr::anti_join(missing_blocks, by = "id") %>%
+    dplyr::left_join(blocks, by = "block")
+
+  df <- rbind(df, missing_blocks) %>%
     dplyr::left_join(surnames, by = "last_name") %>%
     dplyr::left_join(firstnames, by = "first_name") %>%
     dplyr::left_join(parties, by = "party") %>%
