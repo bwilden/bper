@@ -1,5 +1,10 @@
 
+
+#' Predict Race
+#'
+#' Calculates posterior probabilities for individual ethnorace categories
 predict_race <- function(df, dichotomize = F) {
+
 
   missing_blocks <- df %>%
     dplyr::anti_join(blocks, by = "block") %>%
@@ -10,8 +15,13 @@ predict_race <- function(df, dichotomize = F) {
     dplyr::left_join(blocks, by = "block")
 
   df <- rbind(df, missing_blocks) %>%
-    dplyr::left_join(surnames, by = "last_name") %>%
-    dplyr::left_join(firstnames, by = "first_name") %>%
+    dplyr::mutate(first_name_alt = ifelse(!(first_name %in% firstnames$first_name),
+                                      "ALL OTHER FIRST NAMES", first_name),
+                  last_name_alt = ifelse(!(last_name %in% surnames$last_name),
+                                         "ALL OTHER NAMES", last_name)) %>%
+    dplyr::left_join(surnames, by = c("last_name_alt" = "last_name")) %>%
+    dplyr::left_join(firstnames, by = c("first_name_alt" = "first_name")) %>%
+    dplyr::select(-c(first_name_alt, last_name_alt)) %>%
     dplyr::left_join(parties, by = "party") %>%
     dplyr::left_join(apartments, by = "apartment") %>%
     dplyr::left_join(genders, by = "female") %>%
