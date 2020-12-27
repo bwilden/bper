@@ -26,4 +26,5 @@ Imports:
     magrittr,
     vroom
 Depends: 
-    R (>= 2.10)
+    R (>= 2.10),
+    bperdata
