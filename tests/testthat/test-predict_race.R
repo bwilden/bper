@@ -1,17 +1,7 @@
 
 
-
-test_people <- data.frame(first_name = c("MOLLY", "DESHAWN", "ENGELBERT"),
-                          last_name = c("MUELLER", "JACKSON", "HUMPERDINCK"),
-                          birth_year = c(1992, 1959, 1963),
-                          female = c(1, 0, 0),
-                          party = c("DEM", "DEM", "UNA"),
-                          apartment = c(1, 0, 0),
-                          zip = c("92092", "70113", "90210"),
-                          block = c("010010201001000", NA_character_, NA_character_),
-                          id = c(1, 2, 3))
-test_df <- predict_race(test_people)
-test_df_dichot <- predict_race(test_people, dichotomize = T)
+test_df <- predict_race(example_persons)
+test_df_dichot <- predict_race(example_persons, dichotomize = T)
 
 test_that("returns a data.frame object", {
   expect_is(test_df, "data.frame")
@@ -33,12 +23,8 @@ test_that("arg_max_cols chooses correct column", {
 })
 
 test_that("dichotomize argument returns extra columns", {
-  num_col_orig <- ncol(test_people)
+  num_col_orig <- ncol(example_persons)
   num_col_post <- ncol(test_df_dichot)
 
-  expect_equal(num_col_post, num_col_orig + 13)
-})
-
-test_that("dichotomize argument categorizes correctly", {
-  expect_equal(as.character(test_df_dichot$white), c("1", "0", "1"))
+  expect_equal(num_col_post, num_col_orig + 14)
 })
