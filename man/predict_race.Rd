@@ -7,8 +7,8 @@
 predict_race(df, dichotomize = FALSE)
 }
 \arguments{
-\item{df}{A data frame containing the following column names and types:
-\code{last_name} character, \code{first_name} charactecter, \code{female}
+\item{df}{A data frame containing the following column names:
+\code{last_name} character, \code{first_name} character, \code{female}
 numeric, \code{apartment} numeric, \code{party} character,
 \code{birth_year} numeric, \code{zip} character, \code{block} character.
 These columns need to all be included to run the function. If missing,

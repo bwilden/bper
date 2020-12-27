@@ -12,7 +12,6 @@ test_people <- data.frame(first_name = c("MOLLY", "DESHAWN", "ENGELBERT"),
                           id = c(1, 2, 3))
 test_df <- predict_race(test_people)
 test_df_dichot <- predict_race(test_people, dichotomize = T)
-test_df
 
 test_that("returns a data.frame object", {
   expect_is(test_df, "data.frame")

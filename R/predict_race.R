@@ -6,18 +6,19 @@
 #' the Naive Bayes algorithm. Also returns highest predicted race as a new
 #' string column in the data frame.
 #'
-#' @param df A data frame containing the following column names and types:
-#'   \code{last_name} character, \code{first_name} charactecter, \code{female}
-#'   numeric, \code{apartment} numeric, \code{party} character,
-#'   \code{birth_year} numeric, \code{zip} character, \code{block} character.
-#'   These columns need to all be included to run the function. If missing,
-#'   please create a column of NA's corresponding to the correct type.
+#' @param df A data frame containing the following column names:
+#'   \code{last_name}, \code{first_name}, \code{female} , \code{apartment},
+#'   \code{party}, \code{birth_year}, \code{zip}, \code{block}. These columns
+#'   need to all be included to run the function. If missing, please create a
+#'   column of NA's corresponding to the correct type.
 #'
 #' @param dichotomize Indicates whether to create binary factor variables
 #'   indicating an individual's category. 'FALSE' by default.
 #'
-#' @return The original data.frame with the additional columns for ethnorace
+#' @return Returns the original data.frame with the additional columns for ethnorace
 #'   probabilities and predicted category.
+#'
+#' @export
 predict_race <- function(df, dichotomize = FALSE) {
 
 
@@ -219,3 +220,4 @@ predict_race <- function(df, dichotomize = FALSE) {
 
   return(df)
 }
+
