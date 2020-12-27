@@ -8,17 +8,16 @@ predict_race(df, dichotomize = FALSE)
 }
 \arguments{
 \item{df}{A data frame containing the following column names:
-\code{last_name} character, \code{first_name} character, \code{female}
-numeric, \code{apartment} numeric, \code{party} character,
-\code{birth_year} numeric, \code{zip} character, \code{block} character.
-These columns need to all be included to run the function. If missing,
-please create a column of NA's corresponding to the correct type.}
+\code{last_name}, \code{first_name}, \code{female} , \code{apartment},
+\code{party}, \code{birth_year}, \code{zip}, \code{block}. These columns
+need to all be included to run the function. If missing, please create a
+column of NA's corresponding to the correct type.}
 
 \item{dichotomize}{Indicates whether to create binary factor variables
 indicating an individual's category. 'FALSE' by default.}
 }
 \value{
-The original data.frame with the additional columns for ethnorace
+Returns the original data.frame with the additional columns for ethnorace
 probabilities and predicted category.
 }
 \description{
