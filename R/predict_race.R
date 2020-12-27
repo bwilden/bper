@@ -21,6 +21,7 @@
 #' @export
 predict_race <- function(df, dichotomize = FALSE) {
 
+  df <- df %>% dplyr::mutate(id = dplyr::row_number())
 
   missing_blocks <- df %>%
     dplyr::anti_join(blocks, by = "block") %>%
