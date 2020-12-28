@@ -4,39 +4,40 @@
 \alias{load_bperdata}
 \title{Download Ethnorace Distribution Data}
 \usage{
-load_bperdata(destination, download = FALSE, load_data = TRUE)
+load_bperdata(destination = NA, download = FALSE, load_data = TRUE)
 }
 \arguments{
-\item{destination}{A file name in the current working directory where you
+\item{destination}{A folder in the current working directory into which you
 would like to download the data files. The function will create the folder
-if no folder of that name currently exists. Defaults to downloading the
-files into the current working directory.}
+if no folder of that name currently exists. If left blank defaults to
+downloading the files into the current working directory.}
 
 \item{download}{Option to download data sets from
-\url{https://github.com/bwilden/bperdata/tree/master/data}. Only needs to be done once.}
+\url{https://github.com/bwilden/bperdata/tree/master/data}. Only needs to
+be done once.}
 
 \item{load_data}{Option to load data sets into the Global Environment? If you
 want to download the files only, set 'load_data = FALSE'.}
 }
 \description{
 This function downloads, and loads into the Global Environment, the set of
-data files necessary for \code{\link{predict_race}}. Combined file
-size is 59 MB. For more information see
-\url{https://github.com/bwilden/bperdata}.
+data files necessary for \code{\link{predict_race}}. Combined file size is 59
+MB. For more information see \url{https://github.com/bwilden/bperdata}.
 }
 \section{Files}{
- \code{apartments.rda}, \code{birth_years.rda}, \code{blocks.rda}, \code{firstnames.rda},
-\code{genders.rda}, \code{parties.rda}, \code{surnames.rda}, \code{zips.rda}
+ \code{apartments.rda}, \code{birth_years.rda},
+\code{blocks.rda}, \code{firstnames.rda}, \code{genders.rda},
+\code{parties.rda}, \code{surnames.rda}, \code{zips.rda}
 }
 
 \examples{
-First time:
+# First time:
 
 \dontrun{
 load_bperdata(destination = "bperdata", download = TRUE)
 }
 
-After files are downloaded:
+# After files are downloaded:
 
 \dontrun{
 load_bperdata(destination = "bperdata", download = FALSE)
