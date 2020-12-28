@@ -6,3 +6,5 @@ arg_max_cols <- function(df, num_cols, max_col_name = "max_col") {
 
   return(df)
 }
+
+`%notin%` <- Negate(`%in%`)
