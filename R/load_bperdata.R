@@ -1,5 +1,13 @@
 
-#' Download Required Ethnorace Distribution Data
+#' Download Ethnorace Distribution Data
+#'
+#' This function downloads, and loads into the Global Environment, the set of
+#' data files necessary for \code{\link{predict_race}}. Combined file
+#' size is 59 MB. For more information see
+#' \url{https://github.com/bwilden/bperdata}.
+#'
+#' @section Files: \code{apartments.rda}, \code{birth_years.rda}, \code{blocks.rda}, \code{firstnames.rda},
+#'   \code{genders.rda}, \code{parties.rda}, \code{surnames.rda}, \code{zips.rda}
 #'
 #' @param destination A file name in the current working directory where you
 #'   would like to download the data files. The function will create the folder
@@ -7,13 +15,28 @@
 #'   files into the current working directory.
 #'
 #' @param download Option to download data sets from
-#'   \url{https://github.com/bwilden/bperdata}. Only needs to be done once.
+#'   \url{https://github.com/bwilden/bperdata/tree/master/data}. Only needs to be done once.
 #'
-#' @param load_data Should data sets be loaded into the Global Environment?
-#'   Defaults to TRUE.
+#' @param load_data Option to load data sets into the Global Environment? If you
+#'   want to download the files only, set 'load_data = FALSE'.
+#'
+#' @examples
+#' First time:
+#'
+#' \dontrun{
+#' load_bperdata(destination = "bperdata", download = TRUE)
+#' }
+#'
+#' After files are downloaded:
+#'
+#' \dontrun{
+#' load_bperdata(destination = "bperdata", download = FALSE)
+#' }
+#'
+#' @seealso \code{\link{predict_race}}
 #'
 #' @export
-load_bperdata <- function(destination = NA,
+load_bperdata <- function(destination,
                           download = FALSE,
                           load_data = TRUE) {
   file_list <- c(
