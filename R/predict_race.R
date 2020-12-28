@@ -21,7 +21,35 @@
 #' @export
 predict_race <- function(df, dichotomize = FALSE) {
 
+  # Prep data set
   df <- df %>% dplyr::mutate(id = dplyr::row_number())
+
+  # Adding columns if missing from original data set
+  # Would love to find more concise code for this
+  if ("apartment" %notin% colnames(df)) {
+    df$apartment <- NA_integer_
+  }
+  if ("birth_year" %notin% colnames(df)) {
+    df$birth_year <- NA_integer_
+  }
+  if ("block" %notin% colnames(df)) {
+    df$block <- NA_character_
+  }
+  if ("first_name" %notin% colnames(df)) {
+    df$first_name <- NA_character_
+  }
+  if ("female" %notin% colnames(df)) {
+    df$female <- NA_integer_
+  }
+  if ("party" %notin% colnames(df)) {
+    df$party <- NA_character_
+  }
+  if ("last_name" %notin% colnames(df)) {
+    df$last_name <- NA_character_
+  }
+  if ("zip" %notin% colnames(df)) {
+    df$zip <- NA_character_
+  }
 
   missing_blocks <- df %>%
     dplyr::anti_join(blocks, by = "block") %>%
@@ -32,13 +60,16 @@ predict_race <- function(df, dichotomize = FALSE) {
     dplyr::left_join(blocks, by = "block")
 
   df <- rbind(df, missing_blocks) %>%
-    dplyr::mutate(first_name_alt = ifelse(!(first_name %in% firstnames$first_name),
+    dplyr::mutate(first_name_alt = ifelse(first_name %notin% firstnames$first_name,
                                       "ALL OTHER FIRST NAMES", first_name),
-                  last_name_alt = ifelse(!(last_name %in% surnames$last_name),
+                  last_name_alt = ifelse(last_name %notin% surnames$last_name,
                                          "ALL OTHER NAMES", last_name)) %>%
     dplyr::left_join(surnames, by = c("last_name_alt" = "last_name")) %>%
     dplyr::left_join(firstnames, by = c("first_name_alt" = "first_name")) %>%
+
+    # Remove alternative names
     dplyr::select(-c(first_name_alt, last_name_alt)) %>%
+
     dplyr::left_join(parties, by = "party") %>%
     dplyr::left_join(apartments, by = "apartment") %>%
     dplyr::left_join(genders, by = "female") %>%
@@ -214,6 +245,7 @@ predict_race <- function(df, dichotomize = FALSE) {
   }
 
   df <- df %>%
+    dplyr::select(-"id") %>%
     dplyr::select(!(dplyr::starts_with(c("pr_", "norm")))) %>%
     dplyr::select(!(dplyr::ends_with(
       c("_s", "_f", "_g", "_fem", "_y", "_p", "_a")
