@@ -1,5 +1,5 @@
 
-
+#' @export
 example_persons <- data.frame(
   first_name = c("BERT", "LYNDON", "BELINDA", "ANNA", "KARL", "MATHIEU", "LIAM"),
   last_name = c("WILDEN", "WITHER", "LOBOS", "ARENA", "SOM", "TURA", "SZYMONIAK"),
