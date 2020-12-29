@@ -4,7 +4,12 @@
 \alias{load_bperdata}
 \title{Download Ethnorace Distribution Data}
 \usage{
-load_bperdata(destination = NA, download = FALSE, load_data = TRUE)
+load_bperdata(
+  destination = NA,
+  download = FALSE,
+  load_data = TRUE,
+  save_files = TRUE
+)
 }
 \arguments{
 \item{destination}{A folder in the current working directory into which you
@@ -18,6 +23,9 @@ be done once.}
 
 \item{load_data}{Option to load data sets into the Global Environment? If you
 want to download the files only, set 'load_data = FALSE'.}
+
+\item{save_files}{Option to delete files in directory after loading into
+Global Environment.}
 }
 \description{
 This function downloads, and loads into the Global Environment, the set of

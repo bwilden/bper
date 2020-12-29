@@ -21,6 +21,9 @@
 #' @param load_data Option to load data sets into the Global Environment? If you
 #'   want to download the files only, set 'load_data = FALSE'.
 #'
+#' @param save_files Option to delete files in directory after loading into
+#'   Global Environment.
+#'
 #' @examples
 #' # First time:
 #'
@@ -39,7 +42,8 @@
 #' @export
 load_bperdata <- function(destination = NA,
                           download = FALSE,
-                          load_data = TRUE) {
+                          load_data = TRUE,
+                          save_files = TRUE) {
   file_list <- c(
     "apartments",
     "birth_years",
@@ -88,6 +92,10 @@ load_bperdata <- function(destination = NA,
 
     if (load_data == TRUE) {
       load(file = paste0(dest, "/", datafile, ".rda"), .GlobalEnv)
+    }
+
+    if (save_files == FALSE) {
+      file.remove(paste0(dest, "/", datafile, ".rda"))
     }
   }
 }
