@@ -16,8 +16,7 @@ posterior probabilities for each individual.
 
 ## Installation
 
-You can install the development version from
-[GitHub](https://github.com/) with:
+You can install the development version from with:
 
 ``` r
 # install.packages("devtools")
@@ -26,32 +25,37 @@ devtools::install_github("bwilden/bper")
 
 ## Usage
 
-#### Step 1
+### Step 1
 
 Start by loading the `bper` package and preparing your input dataframe
 containing individuals whose ethnorace you wish to predict. The
 following columns are supported:
 
   - `first_name`. All names should be uppercase.
-  - `last_name`. Remove all punctuation (e.g. O’NEAL becomes ONEAL) and
-    all spaces to increase chances of finding a match. All names should
-    be uppercase.
+  - `last_name`. Remove all punctuation and all spaces to increase
+    chances of finding a match (e.g. “O’NEAL” or “O NEAL” should be
+    “ONEAL”) . All names should be uppercase.
   - `birth_year`. Currently only individuals born between the years 1911
     and 2010 will match.
-  - `female`. A binary 1/0 indicator for female or not-female.
+  - `female`. A 1/0 indicator for female or not-female.
   - `party`. Options are “DEM” for Democrat, “REP” for Republican, and
     “UNA” for Independents or other political parties.
-  - `apartment`. A binary 1/0 indicator for whether the individual lives
-    in multi-unit housing or not.
+  - `apartment`. A 1/0 indicator for whether the individual lives in
+    multi-unit housing or not.
   - `zip`. 5 digit ZIP Code.
   - `block`. 15 digit complete US Census block code. This is comprised
     of a 2-digit State code + 3-digit County code + 6-digit Census Tract
-    code + 4-digit Census Block code.
+    code + 4-digit Census Block code. Make sure this is a character
+    string to preserve leading 0’s in State codes.
 
 If any of the above columns are not present in your input dataframe, a
 column of NA’s will be appended so that the `predict_race` function
-works. See example below. The more input information the into the
-algorithm, the better the predictions\!
+runs. Predictive performance may suffer, however, depending on which
+columns are missing. The most important columns are `first_name`,
+`last_name`, and one of `zip` or `block`. The more input information
+going into the algorithm, the better the predictions\!
+
+See example data frame below.
 
 ``` r
 library(bper)
@@ -67,13 +71,13 @@ example_persons
 #> 7       LIAM SZYMONIAK       1932      1   REP         0 59730 450630210201000
 ```
 
-#### Step 2
+### Step 2
 
 The `predict_race` function works by merging nationwide ethnorace
-distribution data into the original data frame to perform the
-computations. This data is stored externally and must be downloaded and
-then loaded into your global environment before running `predict_race`.
-Do this with:
+distribution data into the input data frame to perform the calculations.
+This data is stored externally and must be downloaded and then loaded
+into your global environment before running `predict_race`. Do this
+with:
 
 ``` r
 load_bperdata(download = TRUE, save_files = FALSE)
@@ -91,9 +95,9 @@ For more details see `?load_bperdata` and
 <https://github.com/bwilden/bperdata.> Note: you do not need to install
 the `bperdata` package.
 
-#### Step 3
+### Step 3
 
-Now you are ready to run `predict_race`\!
+Now you are ready to run `predict_race`.
 
 ``` r
 predict_race(example_persons)
