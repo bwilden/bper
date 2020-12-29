@@ -1,18 +1,20 @@
 
+load_bperdata(download = TRUE, save_files = FALSE)
+
+ethnorace_set <- c("aian", "api", "black", "hispanic", "white", "other")
+
+# Basic -------------------------------------------------------------------
 
 test_df <- predict_race(example_persons)
-test_df_dichot <- predict_race(example_persons, dichotomize = T)
 
 test_that("returns a data.frame object", {
   expect_is(test_df, "data.frame")
 })
 
 test_that("pred_race column contains only valid ethnorace categories", {
-  ethnoraces <- c("aian", "api", "black", "hispanic", "white", "other")
-  matched_ethnoraces <- test_df$pred_race %in% ethnoraces
-  true_vec <- rep(TRUE, nrow(test_df))
+  matched_ethnoraces <- test_df$pred_race %in% ethnorace_set
 
-  expect_equal(matched_ethnoraces, true_vec)
+  expect_equal(matched_ethnoraces, rep(TRUE, nrow(test_df)))
 })
 
 test_that("arg_max_cols chooses correct column", {
@@ -22,9 +24,37 @@ test_that("arg_max_cols chooses correct column", {
   expect_equal(thin_df$pred_race, paste0("prob_", test_df$pred_race))
 })
 
-test_that("dichotomize argument returns extra columns", {
+
+# Dichotomize feature -----------------------------------------------------
+
+test_df_dichot <- predict_race(example_persons, dichotomize = T)
+
+test_that("dichotomize returns extra columns with correct names", {
   num_col_orig <- ncol(example_persons)
   num_col_post <- ncol(test_df_dichot)
 
-  expect_equal(num_col_post, num_col_orig + 14)
+  expect_equal(num_col_post, num_col_orig + 13)
+  expect_equal(ethnorace_set %in% colnames(test_df_dichot),
+               rep(TRUE, length(ethnorace_set)))
+})
+
+
+# Input data problems -----------------------------------------------------
+
+test_that("input data missing column(s) still computes predictions", {
+  test_df <-
+    example_persons %>% dplyr::select(-c(first_name, female)) %>%
+    predict_race()
+
+  expect_is(test_df, "data.frame")
+  expect_equal(test_df$pred_race %in% ethnorace_set, rep(TRUE, nrow(test_df)))
+})
+
+test_that("input data with wrong col types still computes predictions", {
+  test_df <-
+    example_persons %>% dplyr::mutate(zip = as.numeric(zip)) %>%
+    predict_race()
+
+  expect_is(test_df, "data.frame")
+  expect_equal(test_df$pred_race %in% ethnorace_set, rep(TRUE, nrow(test_df)))
 })
