@@ -51,6 +51,17 @@ predict_race <- function(df, dichotomize = FALSE) {
     df$zip <- NA_character_
   }
 
+  # Fixing columns if wrong type
+  if (is.character(df$birth_year)) {
+    df$birth_year <- as.numeric(df$birth_year)
+  }
+  if (is.numeric(df$zip)) {
+    df$zip <- as.character(df$zip)
+  }
+  if (is.numeric(df$block)) {
+    df$block <- as.character(df$block)
+  }
+
   missing_blocks <- df %>%
     dplyr::anti_join(blocks, by = "block") %>%
     dplyr::left_join(zips, by = "zip")
