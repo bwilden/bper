@@ -26,13 +26,11 @@
 #'
 #' @examples
 #' # First time:
-#'
 #' \dontrun{
 #' load_bperdata(destination = "bperdata", download = TRUE)
 #' }
 #'
 #' # After files are downloaded:
-#'
 #' \dontrun{
 #' load_bperdata(destination = "bperdata", download = FALSE)
 #' }
@@ -65,19 +63,18 @@ load_bperdata <- function(destination = NA,
   }
 
   if (length(list.files(dest, pattern = ".rda")) == 0 &
-      download == FALSE) {
+    download == FALSE) {
     stop(
       "The directory is empty! Set 'download = TRUE' to download files into destination folder first"
     )
   }
 
   if (length(list.files(dest, pattern = ".rda")) < length(file_list) &
-      download == FALSE) {
+    download == FALSE) {
     warning("The directory does not contain the full set of bper's required data files")
   }
 
   for (datafile in file_list) {
-
     if (download == TRUE) {
       print(paste0("Downloading ", toupper(datafile), " data set..."))
       utils::download.file(
