@@ -1,6 +1,6 @@
 Package: bper
 Title: Bayesian Prediction for Ethnicity and Race
-Version: 0.0.0.9000
+Version: 1.0.0.9000
 Authors@R: 
     person(given = "Bertrand",
            family = "Wilden",
