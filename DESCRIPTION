@@ -6,12 +6,12 @@ Authors@R:
            family = "Wilden",
            role = c("aut", "cre"),
            email = "bwilden@ucsd.edu")
-Description: This package provides functions for predicting individuals' 
-    race/ethnicity given their first name, last name, geo-location, 
+Description: This package provides functions for predicting an individual’s 
+    race/ethnicity given their first name, last name, geolocation, 
     political party, age, gender, and address characteristics. 
-    The method is based on a Naive Bayes classification algorithm which 
-    incorporates known ethnorace distributions over the previously-mentioned 
-    characteristics to produce posterior probabilities for each category.
+    The method is based on a Naive Bayes classification algorithm 
+    which incorporates known ethnorace distributions over the observed 
+    characteristics to generate posterior probabilities for each individual.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
