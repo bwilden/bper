@@ -1,11 +1,11 @@
 
-load_bperdata(download = TRUE, save_files = FALSE)
+load_bperdata("bperdata", download = FALSE)
 
 ethnorace_set <- c("aian", "api", "black", "hispanic", "white", "other")
 
 # Basic -------------------------------------------------------------------
 
-test_df <- predict_race(example_persons)
+test_df <- predict_ethnorace(example_persons)
 
 test_that("returns a data.frame object", {
   expect_is(test_df, "data.frame")
@@ -27,7 +27,7 @@ test_that("arg_max_cols chooses correct column", {
 
 # Dichotomize feature -----------------------------------------------------
 
-test_df_dichot <- predict_race(example_persons, dichotomize = T)
+test_df_dichot <- predict_ethnorace(example_persons, dichotomize = T)
 
 test_that("dichotomize returns extra columns with correct names", {
   num_col_orig <- ncol(example_persons)
@@ -44,7 +44,7 @@ test_that("dichotomize returns extra columns with correct names", {
 test_that("input data missing column(s) still computes predictions", {
   test_df <-
     example_persons %>% dplyr::select(-c(first_name, female)) %>%
-    predict_race()
+    predict_ethnorace()
 
   expect_is(test_df, "data.frame")
   expect_equal(test_df$pred_race %in% ethnorace_set, rep(TRUE, nrow(test_df)))
@@ -53,7 +53,7 @@ test_that("input data missing column(s) still computes predictions", {
 test_that("input data with wrong col types still computes predictions", {
   test_df <-
     example_persons %>% dplyr::mutate(zip = as.numeric(zip)) %>%
-    predict_race()
+    predict_ethnorace()
 
   expect_is(test_df, "data.frame")
   expect_equal(test_df$pred_race %in% ethnorace_set, rep(TRUE, nrow(test_df)))
