@@ -29,13 +29,14 @@ Global Environment.}
 }
 \description{
 This function downloads, and loads into the Global Environment, the set of
-data files necessary for \code{\link{predict_race}}. Combined file size is 59
-MB. For more information see \url{https://github.com/bwilden/bperdata}.
+data files necessary for \code{\link{predict_ethnorace}}. Combined file size
+is 59 MB. For more information see \url{https://github.com/bwilden/bperdata}.
 }
 \section{Files}{
  \code{apartments.rda}, \code{birth_years.rda},
-\code{blocks.rda}, \code{firstnames.rda}, \code{genders.rda},
-\code{parties.rda}, \code{surnames.rda}, \code{zips.rda}
+\code{blocks.rda}, \code{counties}, \code{firstnames.rda},
+\code{genders.rda}, \code{nationwide} \code{parties.rda}, \code{states},
+\code{surnames.rda}, \code{zips.rda}
 }
 
 \examples{
@@ -51,5 +52,5 @@ load_bperdata(destination = "bperdata", download = FALSE)
 
 }
 \seealso{
-\code{\link{predict_race}}
+\code{\link{predict_ethnorace}}
 }
