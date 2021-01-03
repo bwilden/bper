@@ -46,9 +46,12 @@ load_bperdata <- function(destination = NA,
     "apartments",
     "birth_years",
     "blocks",
+    "counties",
     "firstnames",
     "genders",
+    "nationwide",
     "parties",
+    "states",
     "surnames",
     "zips"
   )
