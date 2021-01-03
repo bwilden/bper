@@ -40,13 +40,11 @@ MB. For more information see \url{https://github.com/bwilden/bperdata}.
 
 \examples{
 # First time:
-
 \dontrun{
 load_bperdata(destination = "bperdata", download = TRUE)
 }
 
 # After files are downloaded:
-
 \dontrun{
 load_bperdata(destination = "bperdata", download = FALSE)
 }
