@@ -2,5 +2,5 @@
 
 export(example_persons)
 export(load_bperdata)
-export(predict_race)
+export(predict_ethnorace)
 importFrom(magrittr,"%>%")
