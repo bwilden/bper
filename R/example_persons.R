@@ -1,4 +1,8 @@
-
+#' Example Persons Data Set
+#'
+#' All individuals, except the first, are randomly generated from the ethnorace
+#' distribution data sets.
+#'
 #' @export
 example_persons <- data.frame(
   first_name = c("BERT", "LYNDON", "BELINDA", "ANNA", "KARL", "MATHIEU", "LIAM", "KAI", "PAMELLA"),
