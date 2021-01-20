@@ -19,10 +19,10 @@ downloading the files into the current working directory.}
 
 \item{download}{Option to download data sets from
 \url{https://github.com/bwilden/bperdata/tree/master/data}. Only needs to
-be done once.}
+be done once if \code{save_files = TRUE}.}
 
 \item{load_data}{Option to load data sets into the Global Environment? If you
-want to download the files only, set 'load_data = FALSE'.}
+want to download the files only, set \code{load_data = FALSE}.}
 
 \item{save_files}{Option to delete files in directory after loading into
 Global Environment.}
@@ -35,8 +35,8 @@ is 59 MB. For more information see \url{https://github.com/bwilden/bperdata}.
 \section{Files}{
  \code{apartments.rda}, \code{birth_years.rda},
 \code{blocks.rda}, \code{counties}, \code{firstnames.rda},
-\code{genders.rda}, \code{nationwide} \code{parties.rda}, \code{states},
-\code{surnames.rda}, \code{zips.rda}
+\code{genders.rda}, \code{nationwide} \code{parties.rda}, \code{places.rda},
+\code{states}, \code{surnames.rda}, \code{zips.rda}
 }
 
 \examples{
