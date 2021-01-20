@@ -2,6 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-.csv
-.xlsx
-.rda
+*.csv
+*.xlsx
+*.rda
