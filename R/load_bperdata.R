@@ -7,8 +7,8 @@
 #'
 #' @section Files: \code{apartments.rda}, \code{birth_years.rda},
 #'   \code{blocks.rda}, \code{counties}, \code{firstnames.rda},
-#'   \code{genders.rda}, \code{nationwide} \code{parties.rda}, \code{states},
-#'   \code{surnames.rda}, \code{zips.rda}
+#'   \code{genders.rda}, \code{nationwide} \code{parties.rda}, \code{places.rda},
+#'   \code{states}, \code{surnames.rda}, \code{zips.rda}
 #'
 #' @param destination A folder in the current working directory into which you
 #'   would like to download the data files. The function will create the folder
@@ -17,10 +17,10 @@
 #'
 #' @param download Option to download data sets from
 #'   \url{https://github.com/bwilden/bperdata/tree/master/data}. Only needs to
-#'   be done once.
+#'   be done once if \code{save_files = TRUE}.
 #'
 #' @param load_data Option to load data sets into the Global Environment? If you
-#'   want to download the files only, set 'load_data = FALSE'.
+#'   want to download the files only, set \code{load_data = FALSE}.
 #'
 #' @param save_files Option to delete files in directory after loading into
 #'   Global Environment.
@@ -52,6 +52,7 @@ load_bperdata <- function(destination = NA,
     "genders",
     "nationwide",
     "parties",
+    "places",
     "states",
     "surnames",
     "zips"
