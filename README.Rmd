@@ -44,10 +44,11 @@ Start by loading the `bper` package and preparing your input data set containing
 -   `apartment`. A 1/0 indicator for whether the individual lives in multi-unit housing or not.
 -   `state`. 2 character State abbreviation code.
 -   `county`. 5 digit County, or FIPS, code. This is comprised of a 2-digit State code + 3-digit County code.
+-   `place`. 7 digit Census Place code. This is comprised of a 2-digit State code + 5-digit Place code.
 -   `zip`. 5 digit ZIP Code.
 -   `block`. 15 digit complete US Census block code. This is comprised of a 2-digit State code + 3-digit County code + 6-digit Census Tract code + 4-digit Census Block code. Make sure this is a character string to preserve leading 0's in State codes.
 
-If any of the above columns are not present in your input data set, a column of NA's will be appended so that the `predict_ethnorace` function runs. Predictive performance may suffer, however, depending on which columns are missing. The most important columns are `first_name`, `last_name`, and one geolocation variable (`state`, `county`, `zip`, or `block`). Predictive accuracy improves following a decrease in average population size for your geolocation unit. So Census blocks are better than ZIP Codes, which are better than County codes, which are better than State codes.
+If any of the above columns are not present in your input data set, a column of NA's will be appended so that the `predict_ethnorace` function runs. Predictive performance may suffer, however, depending on which columns are missing. The most important columns are `first_name`, `last_name`, and one geolocation variable (`state`, `county`, `place`, `zip`, or `block`). Predictive accuracy improves following a decrease in average population size for your geolocation unit. So Census blocks are better than ZIP Codes, which are better than County codes, which are better than State codes.
 
 See example data frame below.
 

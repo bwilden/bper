@@ -5,13 +5,13 @@
 \alias{example_persons}
 \title{Example Persons Data Set}
 \format{
-An object of class \code{data.frame} with 9 rows and 10 columns.
+An object of class \code{data.frame} with 9 rows and 11 columns.
 }
 \usage{
 example_persons
 }
 \description{
-All individuals, except the first, are randomly generated from the ethnorace
-distribution data sets.
+All individuals, except the first row, are randomly generated from the
+ethnorace distribution data sets.
 }
 \keyword{datasets}
