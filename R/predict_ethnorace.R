@@ -50,6 +50,9 @@ predict_ethnorace <- function(df, dichotomize = FALSE) {
   if ("party" %notin% colnames(df)) {
     df$party <- NA_character_
   }
+  if ("place" %notin% colnames(df)) {
+    df$place <- NA_character_
+  }
   if ("state" %notin% colnames(df)) {
     df$state <- NA_character_
   }
@@ -67,6 +70,9 @@ predict_ethnorace <- function(df, dichotomize = FALSE) {
   if (is.numeric(df$county)) {
     df$county <- as.character(df$county)
   }
+  if (is.numeric(df$place)) {
+    df$place <- as.character(df$place)
+  }
   if (is.numeric(df$zip)) {
     df$zip <- as.character(df$zip)
   }
@@ -81,22 +87,30 @@ predict_ethnorace <- function(df, dichotomize = FALSE) {
   block_matches <- df %>%
     dplyr::filter(!is.na(block)) %>%
     dplyr::left_join(blocks, by = "block")
+
   zip_matches <- df %>%
     dplyr::filter(!is.na(zip), id %notin% block_matches$id) %>%
     dplyr::left_join(zips, by = "zip")
+
+  place_matches <- df %>%
+    dplyr::filter(!is.na(place), id %notin% c(block_matches$id, zip_matches$id)) %>%
+    dplyr::left_join(places, by = "place")
+
   county_matches <- df %>%
-    dplyr::filter(!is.na(county), id %notin% c(block_matches$id, zip_matches$id)) %>%
+    dplyr::filter(!is.na(county), id %notin% c(block_matches$id, zip_matches$id, place_matches$id)) %>%
     dplyr::left_join(counties, by = "county")
+
   state_matches <- df %>%
-    dplyr::filter(!is.na(state), id %notin% c(block_matches$id, zip_matches$id, county_matches$id)) %>%
+    dplyr::filter(!is.na(state), id %notin% c(block_matches$id, zip_matches$id, place_matches$id, county_matches$id)) %>%
     dplyr::left_join(states, by = "state")
+
   none_matches <- df %>%
-    dplyr::filter(id %notin% c(state_matches$id, block_matches$id, zip_matches$id, county_matches$id)) %>%
+    dplyr::filter(id %notin% c(state_matches$id, block_matches$id, zip_matches$id, place_matches$id, county_matches$id)) %>%
     dplyr::mutate(GEOID = "nationwide") %>%
     dplyr::left_join(nationwide, by = "GEOID") %>%
     dplyr::select(-GEOID)
 
-  df <- rbind(block_matches, zip_matches, county_matches, state_matches, none_matches)
+  df <- rbind(block_matches, zip_matches, place_matches, county_matches, state_matches, none_matches)
 
 
 # Merge Other Probabilities -----------------------------------------------
