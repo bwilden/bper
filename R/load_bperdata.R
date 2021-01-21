@@ -97,7 +97,8 @@ load_bperdata <- function(destination = NA,
           datafile,
           ".rda?raw=true"
         ),
-        destfile = here::here(dest, paste0(datafile, ".rda"))
+        destfile = here::here(dest, paste0(datafile, ".rda")),
+        mode = "wb"
       )
     }
 
