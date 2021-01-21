@@ -8,7 +8,8 @@ load_bperdata(
   destination = NA,
   download = FALSE,
   load_data = TRUE,
-  save_files = TRUE
+  save_files = TRUE,
+  include_blocks = FALSE
 )
 }
 \arguments{
@@ -26,6 +27,10 @@ want to download the files only, set \code{load_data = FALSE}.}
 
 \item{save_files}{Option to delete files in directory after loading into
 Global Environment.}
+
+\item{include_blocks}{Option to avoid downloading/loading the Census Blocks
+data set if using other geolocations instead. The blocks data is by the
+largest file to download.}
 }
 \description{
 This function downloads, and loads into the Global Environment, the set of
@@ -35,8 +40,8 @@ is 59 MB. For more information see \url{https://github.com/bwilden/bperdata}.
 \section{Files}{
  \code{apartments.rda}, \code{birth_years.rda},
 \code{blocks.rda}, \code{counties}, \code{firstnames.rda},
-\code{genders.rda}, \code{nationwide} \code{parties.rda}, \code{places.rda},
-\code{states}, \code{surnames.rda}, \code{zips.rda}
+\code{genders.rda}, \code{nationwide} \code{parties.rda},
+\code{places.rda}, \code{states}, \code{surnames.rda}, \code{zips.rda}
 }
 
 \examples{

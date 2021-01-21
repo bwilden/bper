@@ -63,10 +63,10 @@ example_persons
 The `predict_ethnorace` function works by merging nationwide ethnorace distribution data into the input data set to perform calculations. This data is stored externally and must be downloaded and then loaded into your global environment before running `predict_ethnorace`. Do this with:
 
 ```{r}
-load_bperdata(download = TRUE, save_files = FALSE)
+load_bperdata(download = TRUE, save_files = FALSE, include_blocks = TRUE)
 ```
 
-Warning: the total size of these file is about 60 MB. For more details see `?load_bperdata` and <https://github.com/bwilden/bperdata.> Note: you do **not** need to install the `bperdata` package.
+Warning: the total size of these file is about 60 MB. If you are not using Census Blocks for your geolocation variable, set `include_blocks = FALSE` to substantially reduce the download time. For more details see `?load_bperdata` and <https://github.com/bwilden/bperdata.> Note: you do **not** need to install the `bperdata` package.
 
 ### Step 3
 

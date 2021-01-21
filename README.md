@@ -100,10 +100,9 @@ your global environment before running `predict_ethnorace`. Do this
 with:
 
 ``` r
-load_bperdata(download = TRUE, save_files = FALSE)
+load_bperdata(download = TRUE, save_files = FALSE, include_blocks = TRUE)
 #> [1] "Downloading APARTMENTS data set..."
 #> [1] "Downloading BIRTH_YEARS data set..."
-#> [1] "Downloading BLOCKS data set..."
 #> [1] "Downloading COUNTIES data set..."
 #> [1] "Downloading FIRSTNAMES data set..."
 #> [1] "Downloading GENDERS data set..."
@@ -113,11 +112,14 @@ load_bperdata(download = TRUE, save_files = FALSE)
 #> [1] "Downloading STATES data set..."
 #> [1] "Downloading SURNAMES data set..."
 #> [1] "Downloading ZIPS data set..."
+#> [1] "Downloading BLOCKS data set..."
 ```
 
-Warning: the total size of these file is about 60 MB. For more details
-see `?load_bperdata` and <https://github.com/bwilden/bperdata.> Note:
-you do **not** need to install the `bperdata` package.
+Warning: the total size of these file is about 60 MB. If you are not
+using Census Blocks for your geolocation variable, set `include_blocks =
+FALSE` to substantially reduce the download time. For more details see
+`?load_bperdata` and <https://github.com/bwilden/bperdata.> Note: you do
+**not** need to install the `bperdata` package.
 
 ### Step 3
 
