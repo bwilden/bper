@@ -7,8 +7,8 @@
 #'
 #' @section Files: \code{apartments.rda}, \code{birth_years.rda},
 #'   \code{blocks.rda}, \code{counties}, \code{firstnames.rda},
-#'   \code{genders.rda}, \code{nationwide} \code{parties.rda}, \code{places.rda},
-#'   \code{states}, \code{surnames.rda}, \code{zips.rda}
+#'   \code{genders.rda}, \code{nationwide} \code{parties.rda},
+#'   \code{places.rda}, \code{states}, \code{surnames.rda}, \code{zips.rda}
 #'
 #' @param destination A folder in the current working directory into which you
 #'   would like to download the data files. The function will create the folder
@@ -24,6 +24,10 @@
 #'
 #' @param save_files Option to delete files in directory after loading into
 #'   Global Environment.
+#'
+#' @param include_blocks Option to avoid downloading/loading the Census Blocks
+#'   data set if using other geolocations instead. The blocks data is by the
+#'   largest file to download.
 #'
 #' @examples
 #' # First time:
@@ -42,11 +46,12 @@
 load_bperdata <- function(destination = NA,
                           download = FALSE,
                           load_data = TRUE,
-                          save_files = TRUE) {
+                          save_files = TRUE,
+                          include_blocks = FALSE) {
+
   file_list <- c(
     "apartments",
     "birth_years",
-    "blocks",
     "counties",
     "firstnames",
     "genders",
@@ -58,13 +63,17 @@ load_bperdata <- function(destination = NA,
     "zips"
   )
 
+  if (include_blocks == TRUE) {
+    file_list <- c(file_list, "blocks")
+  }
+
   if (is.na(destination)) {
-    dest <- getwd()
+    dest <- here::here()
   } else if (dir.exists(destination)) {
-    dest <- paste0(getwd(), "/", destination)
+    dest <- here::here(destination)
   } else {
     dir.create(destination)
-    dest <- paste0(getwd(), "/", destination)
+    dest <- here::here(destination)
   }
 
   if (length(list.files(dest, pattern = ".rda")) == 0 &
@@ -88,16 +97,16 @@ load_bperdata <- function(destination = NA,
           datafile,
           ".rda?raw=true"
         ),
-        destfile = paste0(dest, "/", datafile, ".rda")
+        destfile = here::here(dest, paste0(datafile, ".rda"))
       )
     }
 
     if (load_data == TRUE) {
-      load(file = paste0(dest, "/", datafile, ".rda"), .GlobalEnv)
+      load(file = here::here(dest, paste0(datafile, ".rda")), .GlobalEnv)
     }
 
     if (save_files == FALSE) {
-      file.remove(paste0(dest, "/", datafile, ".rda"))
+      file.remove(here::here(dest, paste0(datafile, ".rda")))
     }
   }
 }

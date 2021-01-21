@@ -1,5 +1,6 @@
 
-load_bperdata("bperdata", download = FALSE)
+load_bperdata(here::here("tests", "testthat", "bperdata"),
+              download = FALSE, include_blocks = TRUE)
 
 ethnorace_set <- c("aian", "api", "black", "hispanic", "white", "other")
 
