@@ -80,13 +80,22 @@ predict_ethnorace <- function(df, dichotomize = FALSE) {
     df$block <- as.character(df$block)
   }
 
+  if (!exists("blocks")) {
+    blocks <- data.frame(block = NA)
+  }
+
 
 # Merge Geolocation Probabilities -----------------------------------------
 
   # Split data into sets depending on which geolocation variable exists
-  block_matches <- df %>%
-    dplyr::filter(!is.na(block)) %>%
-    dplyr::left_join(blocks, by = "block")
+
+  if (exists("blocks")) {
+    block_matches <- df %>%
+      dplyr::filter(!is.na(block)) %>%
+      dplyr::left_join(blocks, by = "block")
+  } else {
+    block_matches <- data.frame(id = NA)
+  }
 
   zip_matches <- df %>%
     dplyr::filter(!is.na(zip), id %notin% block_matches$id) %>%
@@ -110,7 +119,11 @@ predict_ethnorace <- function(df, dichotomize = FALSE) {
     dplyr::left_join(nationwide, by = "GEOID") %>%
     dplyr::select(-GEOID)
 
-  df <- rbind(block_matches, zip_matches, place_matches, county_matches, state_matches, none_matches)
+  df <- rbind(zip_matches, place_matches, county_matches, state_matches, none_matches)
+
+  if (exists("blocks")) {
+    df <- rbind(df, block_matches)
+  }
 
 
 # Merge Other Probabilities -----------------------------------------------
