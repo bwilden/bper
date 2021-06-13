@@ -3,4 +3,7 @@
 export(example_persons)
 export(load_bperdata)
 export(predict_ethnorace)
+import(dplyr)
+import(stringr)
+import(tidyr)
 importFrom(magrittr,"%>%")
