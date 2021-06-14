@@ -5,9 +5,7 @@ readRenviron("~/.Renviron")
 
 # Last Names --------------------------------------------------------------
 
-load_surnames_data <- function(year) {
-
-  psuedo_count <- 1
+load_surnames_data <- function(year, psuedocount) {
 
   last_names <- censusapi::getCensus(
     name = "surname",
@@ -31,7 +29,8 @@ load_surnames_data <- function(year) {
       across(contains("pct"),
              ~ (. * count) + psuedo_count,
              .names = "count_{.col}"),
-      across(starts_with("count_"), ~ . / count,
+      across(starts_with("count_"),
+             ~ . / count,
              .names = "pr_{.col}|last"),
       across(starts_with("count_"),
              ~ . / sum(.),
@@ -44,6 +43,31 @@ load_surnames_data <- function(year) {
   return(last_names)
 }
 
+
+# First Names -------------------------------------------------------------
+
+load_first_names_data <- function(psuedocount) {
+  load("R/sysdata.rda")
+  first_names <- first_names %>%
+    mutate(
+      across(contains("pct"),
+             ~ as.numeric(.) / 100),
+      across(contains("pct"),
+             ~ (. * obs) + psuedocount,
+             .names = "obs_{.col}"),
+      across(starts_with("obs_"),
+             ~ . / obs,
+             .names = "pr_{.col}|first"),
+      across(starts_with("obs_"),
+             ~ . / sum(.),
+             .names = "pr_first|{.col}")
+    ) %>%
+    rename_with( ~ str_remove_all(., "obs_pct"), contains("pr_")) %>%
+    rename_with( ~ str_replace_all(., "2prace", "other"), everything()) %>%
+    select(first_name = firstname, contains("pr_"))
+
+  return(first_names)
+}
 
 # Multi-Unit Occupancy ----------------------------------------------------
 
@@ -176,5 +200,8 @@ load_sex_age_data <- function(year, census_groups, vars) {
     return(ages)
   }
 }
+
+
+# Party -------------------------------------------------------------------
 
 

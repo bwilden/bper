@@ -1,21 +1,19 @@
 
 # Last Names --------------------------------------------------------------
 
-last_names_test <- load_surnames_data(year = 2010)
+last_names_test <- load_surnames_data(year = 2010, psuedocount = 1)
 
 test_that("surnames data loads", {
   expect_is(last_names_test, "data.frame")
 })
 
-test_that("surnames data has correct columns", {
-  expect_equal(colnames(last_names_test),
-               c("last_name", "pr_white|last",
-                 "pr_black|last", "pr_aian|last",
-                 "pr_api|last", "pr_hispanic|last",
-                 "pr_other|last", "pr_last|white",
-                 "pr_last|black", "pr_last|aian",
-                 "pr_last|api", "pr_last|hispanic",
-                 "pr_last|other"))
+
+# First Names -------------------------------------------------------------
+
+first_names_test <- load_first_names_data(psuedocount = 1)
+
+test_that("first names data loads", {
+  expect_is(first_names_test, "data.frame")
 })
 
 
