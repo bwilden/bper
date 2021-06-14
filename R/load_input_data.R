@@ -79,10 +79,10 @@ load_parties_data <- function(year) {
   parties <- anes %>%
     filter(year_group == year) %>%
     mutate(
-      across(-c(year_group, party),
-             ~ . / rowSums(across(-c(year_group, party))),
+      across(c(white, black, api, hispanic, aian, other),
+             ~ . / rowSums(across(c(white, black, api, hispanic, aian, other))),
              .names = "pr_{.col}|party"),
-      across(-c(year_group, party),
+      across(c(white, black, api, hispanic, aian, other),
              ~ . / sum(.),
              .names = "pr_party|{.col}")
     ) %>%
@@ -224,7 +224,5 @@ load_sex_age_data <- function(year, census_groups, vars) {
   }
 }
 
-
-# Party -------------------------------------------------------------------
 
 
