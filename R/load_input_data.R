@@ -47,6 +47,7 @@ load_surnames_data <- function(year, psuedocount) {
 # First Names -------------------------------------------------------------
 
 load_first_names_data <- function(psuedocount) {
+
   load("R/sysdata.rda")
   first_names <- first_names %>%
     mutate(
@@ -68,6 +69,28 @@ load_first_names_data <- function(psuedocount) {
 
   return(first_names)
 }
+
+
+# Party ID ----------------------------------------------------------------
+
+load_parties_data <- function(year) {
+
+  load("R/sysdata.rda")
+  parties <- anes %>%
+    filter(year_group == year) %>%
+    mutate(
+      across(-c(year_group, party),
+             ~ . / rowSums(across(-c(year_group, party))),
+             .names = "pr_{.col}|party"),
+      across(-c(year_group, party),
+             ~ . / sum(.),
+             .names = "pr_party|{.col}")
+    ) %>%
+    select(party, contains("pr_"))
+
+  return(parties)
+}
+
 
 # Multi-Unit Occupancy ----------------------------------------------------
 

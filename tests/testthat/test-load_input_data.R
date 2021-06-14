@@ -17,6 +17,14 @@ test_that("first names data loads", {
 })
 
 
+# Party ID ----------------------------------------------------------------
+
+parties_test <- load_parties_data(2010)
+
+test_that("parties data loads", {
+  expect_is(parties_test, "data.frame")
+})
+
 # Sex/Age -----------------------------------------------------------------
 
 sex_ages_test <- load_sex_age_data(year = 2010, vars = "both",
