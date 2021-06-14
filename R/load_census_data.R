@@ -2,6 +2,9 @@
 Sys.setenv(CENSUS_KEY = "5e4c2b8438222753a7f4753fa78855eca73b9950")
 readRenviron("~/.Renviron")
 
+
+# Last Names --------------------------------------------------------------
+
 load_surnames_data <- function(year) {
 
   psuedo_count <- 1
@@ -29,10 +32,10 @@ load_surnames_data <- function(year) {
              ~ (. * count) + psuedo_count,
              .names = "count_{.col}"),
       across(starts_with("count_"), ~ . / count,
-             .names = "pr_{.col}|s"),
+             .names = "pr_{.col}|last"),
       across(starts_with("count_"),
              ~ . / sum(.),
-             .names = "pr_s|{.col}")
+             .names = "pr_last|{.col}")
     ) %>%
     rename_with( ~ str_remove_all(., "count_pct"), contains("pr_")) %>%
     rename_with( ~ str_replace_all(., "2prace", "other"), everything()) %>%
@@ -41,6 +44,8 @@ load_surnames_data <- function(year) {
   return(last_names)
 }
 
+
+# Sex/Age -----------------------------------------------------------------
 
 get_sex_age_data <- function(census_group, group_name, year) {
 
@@ -86,7 +91,7 @@ load_sex_age_data <- function(year, vars) {
 
   if (vars == "both") {
 
-    sex_age <- sex_age_totals %>%
+    sex_ages <- sex_age_totals %>%
       filter(!name %in% c("Total", "Total!!Female", "Total!!Male")) %>%
       mutate(
         sex = if_else(grepl("Female", name), 1, 0),
@@ -101,11 +106,11 @@ load_sex_age_data <- function(year, vars) {
       ) %>%
       select(sex, age, contains("pr_"))
 
-    return(sex_age)
+    return(sex_ages)
 
   } else if (vars == "sex") {
 
-    sex <- sex_age_totals %>%
+    sexes <- sex_age_totals %>%
       filter(name %in% c("Total!!Male", "Total!!Female")) %>%
       mutate(
         sex = if_else(grepl("Female", name), 1, 0),
@@ -118,11 +123,11 @@ load_sex_age_data <- function(year, vars) {
       ) %>%
       select(sex, contains("pr_"))
 
-    return(sex)
+    return(sexes)
 
   } else if (vars == "age") {
 
-    age <- sex_age_totals %>%
+    ages <- sex_age_totals %>%
       filter(!name %in% c("Total", "Total!!Female", "Total!!Male")) %>%
       mutate(age = if_else(grepl("Under", name), 0,
                            as.numeric(str_extract(name, "[:digit:]+")))) %>%
@@ -139,7 +144,51 @@ load_sex_age_data <- function(year, vars) {
       ) %>%
       select(age, contains("pr_"))
 
-    return(age)
+    return(ages)
 
   }
 }
+
+
+# Multi-unit Occupancy ----------------------------------------------------
+
+load_multi_unit_data <- function(year, census_groups) {
+
+  multi_units <- tibble()
+  for (group in census_groups) {
+    group_multi_units <- censusapi::getCensus(
+      name = "acs/acs5",
+      vintage = year,
+      region = "us",
+      vars = paste0("group(", group[1], ")")
+    ) %>%
+      select(ends_with("E"), -NAME) %>%
+      rename_with(~ str_remove(., group[1])) %>%
+      mutate(group := group[2])
+
+    multi_units <- rbind(multi_units, group_multi_units)
+  }
+
+  ethnorace_columns <- unlist(census_groups)[c(F, T)]
+
+  multi_units <- multi_units %>%
+    pivot_longer(cols = !group) %>%
+    pivot_wider(names_from = group) %>%
+    filter(name != "_001E") %>%
+    mutate(multi_unit = if_else(name %in% c("_002E", "_003E", "_010E", "_011E"), 0, 1)) %>%
+    group_by(multi_unit) %>%
+    summarise(across(-name, sum)) %>%
+    ungroup() %>%
+    mutate(
+      across(ethnorace_columns,
+             ~ . / rowSums(across(ethnorace_columns)),
+             .names = "pr_{.col}|multi_unit"),
+      across(ethnorace_columns,
+             ~ . / sum(.),
+             .names = "pr_multi_unit|{.col}")
+    ) %>%
+    select(multi_unit, contains("pr_"))
+
+  return(multi_units)
+}
+
