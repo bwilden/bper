@@ -28,4 +28,8 @@ anes <- haven::read_dta(here::here("data-raw", "anes_timeseries_cdf.dta")) %>%
             other = sum(ethnorace == "other", na.rm = T)) %>%
   ungroup()
 
-usethis::use_data(first_names, anes, overwrite = TRUE, internal = TRUE)
+state_codes <- readr::read_csv(here::here("data-raw", "state_code_conc.csv")) %>%
+  mutate(GEO_ID = str_pad(STATE, width = 2, pad = "0")) %>%
+  select(GEO_ID, state = STUSAB)
+
+usethis::use_data(first_names, anes, state_codes, overwrite = TRUE, internal = TRUE)
