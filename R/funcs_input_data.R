@@ -6,40 +6,42 @@ ethnorace_set <- c("aian", "api", "black", "hispanic", "other", "white")
 
 # Last Names --------------------------------------------------------------
 
-load_surnames_data <- function(year, psuedocount) {
+load_surnames_data <- function(year = 2010, psuedocount = 1) {
 
-  last_names <- censusapi::getCensus(
-    name = "surname",
-    vintage = year,
-    vars = c(
-      "COUNT",
-      "PCTWHITE",
-      "PCTBLACK",
-      "PCTAIAN",
-      "PCTAPI",
-      "PCTHISPANIC",
-      "PCT2PRACE"
-    ),
-    NAME = "*"
-  ) %>%
-    rename_with( ~ tolower(.), everything()) %>%
-    mutate(
-      count = as.numeric(count),
-      across(contains("pct"),
-             ~ replace_na(as.numeric(.), 0) / 100),
-      across(contains("pct"),
-             ~ (. * count) + psuedo_count,
-             .names = "count_{.col}"),
-      across(starts_with("count_"),
-             ~ . / count,
-             .names = "pr_{.col}|last"),
-      across(starts_with("count_"),
-             ~ . / sum(.),
-             .names = "pr_last|{.col}")
+  suppressWarnings(
+    last_names <- censusapi::getCensus(
+      name = "surname",
+      vintage = year,
+      vars = c(
+        "COUNT",
+        "PCTWHITE",
+        "PCTBLACK",
+        "PCTAIAN",
+        "PCTAPI",
+        "PCTHISPANIC",
+        "PCT2PRACE"
+      ),
+      NAME = "*"
     ) %>%
-    rename_with( ~ str_remove_all(., "count_pct"), contains("pr_")) %>%
-    rename_with( ~ str_replace_all(., "2prace", "other"), everything()) %>%
-    select(last_name = name, contains("pr_"))
+      rename_with( ~ tolower(.), everything()) %>%
+      mutate(
+        count = as.numeric(count),
+        across(contains("pct"),
+               ~ replace_na(as.numeric(.), 0) / 100),
+        across(contains("pct"),
+               ~ (. * count) + psuedocount,
+               .names = "count_{.col}"),
+        across(starts_with("count_"),
+               ~ . / count,
+               .names = "pr_{.col}|last"),
+        across(starts_with("count_"),
+               ~ . / sum(.),
+               .names = "pr_last|{.col}")
+      ) %>%
+      rename_with( ~ str_remove_all(., "count_pct"), contains("pr_")) %>%
+      rename_with( ~ str_replace_all(., "2prace", "other"), everything()) %>%
+      select(last_name = name, contains("pr_"))
+  )
 
   return(last_names)
 }
@@ -101,7 +103,18 @@ load_parties_data <- function(year = 2020) {
 
 # Multi-Unit Occupancy ----------------------------------------------------
 
-load_multi_unit_data <- function(year, census_groups) {
+load_multi_unit_data <- function(year = 2019) {
+
+  census_groups = list(
+    c("B25032A", "white"),
+    c("B25032B", "black"),
+    c("B25032C", "aian"),
+    c("B25032D", "api"),
+    c("B25032E", "api"),
+    c("B25032F", "other"),
+    c("B25032G", "other"),
+    c("B25032I", "hispanic")
+  )
 
   multi_units <- tibble()
   for (group in census_groups) {
@@ -119,6 +132,9 @@ load_multi_unit_data <- function(year, census_groups) {
   }
 
   multi_units <- multi_units %>%
+    group_by(group) %>%
+    summarise(across(everything(), sum)) %>%
+    ungroup() %>%
     pivot_longer(cols = !group) %>%
     pivot_wider(names_from = group) %>%
     filter(name != "_001E") %>%
@@ -142,11 +158,21 @@ load_multi_unit_data <- function(year, census_groups) {
 
 # Sex/Age -----------------------------------------------------------------
 
-load_sex_age_data <- function(year, census_groups, vars) {
+load_sex_age_data <- function(year = 2010, vars = "both") {
+
+  census_groups = list(
+    c("PCT12I", "white"),
+    c("PCT12J", "black"),
+    c("PCT12K", "aian"),
+    c("PCT12L", "api"),
+    c("PCT12M", "api"),
+    c("PCT12N", "other"),
+    c("PCT12O", "other"),
+    c("PCT12H", "hispanic")
+  )
 
   sex_age_totals <- tibble()
   for (group in census_groups) {
-
     sex_age_totals_group <- censusapi::getCensus(
       name = "dec/sf1",
       vintage = year,
@@ -169,6 +195,9 @@ load_sex_age_data <- function(year, census_groups, vars) {
     select(name, label)
 
   sex_age_totals <- sex_age_totals %>%
+    group_by(group) %>%
+    summarise(across(everything(), sum)) %>%
+    ungroup() %>%
     pivot_longer(cols = !group) %>%
     pivot_wider(names_from = group) %>%
     left_join(labels, by = "name")
@@ -252,6 +281,11 @@ load_geo_data <- function(geo, year = 2019, psuedocount = 1) {
              .names = "pr_geo|{.col}")
     ) %>%
     select(GEO_ID, contains("pr_"))
+
+  if (geo == "state") {
+    geos <- geos %>%
+      mutate(GEO_ID = str_sub(GEO_ID, start = -2))
+  }
 
   return(geos)
 }
