@@ -2,6 +2,7 @@
 Sys.setenv(CENSUS_KEY = "5e4c2b8438222753a7f4753fa78855eca73b9950")
 readRenviron("~/.Renviron")
 
+ethnorace_set <- c("aian", "api", "black", "hispanic", "other", "white")
 
 # Last Names --------------------------------------------------------------
 
@@ -46,9 +47,8 @@ load_surnames_data <- function(year, psuedocount) {
 
 # First Names -------------------------------------------------------------
 
-load_first_names_data <- function(psuedocount) {
+load_first_names_data <- function(psuedocount = 1) {
 
-  load("R/sysdata.rda")
   first_names <- first_names %>%
     mutate(
       across(contains("pct"),
@@ -73,16 +73,23 @@ load_first_names_data <- function(psuedocount) {
 
 # Party ID ----------------------------------------------------------------
 
-load_parties_data <- function(year) {
+load_parties_data <- function(year = 2020) {
 
-  load("R/sysdata.rda")
+  if (year <= 2005) {
+    year <- 2000
+  } else if (year <= 2015) {
+    year <- 2010
+  } else {
+    year <- 2020
+  }
+
   parties <- anes %>%
     filter(year_group == year) %>%
     mutate(
-      across(c(white, black, api, hispanic, aian, other),
-             ~ . / rowSums(across(c(white, black, api, hispanic, aian, other))),
+      across(ethnorace_set,
+             ~ . / rowSums(across(ethnorace_set)),
              .names = "pr_{.col}|party"),
-      across(c(white, black, api, hispanic, aian, other),
+      across(ethnorace_set,
              ~ . / sum(.),
              .names = "pr_party|{.col}")
     ) %>%
@@ -111,8 +118,6 @@ load_multi_unit_data <- function(year, census_groups) {
     multi_units <- rbind(multi_units, group_multi_units)
   }
 
-  ethnorace_columns <- unlist(census_groups)[c(F, T)]
-
   multi_units <- multi_units %>%
     pivot_longer(cols = !group) %>%
     pivot_wider(names_from = group) %>%
@@ -122,10 +127,10 @@ load_multi_unit_data <- function(year, census_groups) {
     summarise(across(-name, sum)) %>%
     ungroup() %>%
     mutate(
-      across(ethnorace_columns,
-             ~ . / rowSums(across(ethnorace_columns)),
+      across(ethnorace_set,
+             ~ . / rowSums(across(ethnorace_set)),
              .names = "pr_{.col}|multi_unit"),
-      across(ethnorace_columns,
+      across(ethnorace_set,
              ~ . / sum(.),
              .names = "pr_multi_unit|{.col}")
     ) %>%
@@ -163,8 +168,6 @@ load_sex_age_data <- function(year, census_groups, vars) {
     mutate(name = str_sub(name, start = 8)) %>%
     select(name, label)
 
-  ethnorace_columns <- unlist(census_groups)[c(F, T)]
-
   sex_age_totals <- sex_age_totals %>%
     pivot_longer(cols = !group) %>%
     pivot_wider(names_from = group) %>%
@@ -176,10 +179,10 @@ load_sex_age_data <- function(year, census_groups, vars) {
       sex = if_else(grepl("Female", label), 1, 0),
       age = if_else(grepl("Under", label), 0,
                     as.numeric(str_extract(label, "[:digit:]+"))),
-      across(ethnorace_columns,
-             ~ . / rowSums(across(ethnorace_columns)),
+      across(ethnorace_set,
+             ~ . / rowSums(across(ethnorace_set)),
              .names = "pr_{.col}|sex_age"),
-      across(ethnorace_columns,
+      across(ethnorace_set,
              ~ . / sum(.),
              .names = "pr_sex_age|{.col}")
     ) %>%
@@ -189,10 +192,10 @@ load_sex_age_data <- function(year, census_groups, vars) {
     filter(label %in% c("Total!!Male", "Total!!Female")) %>%
     mutate(
       sex = if_else(grepl("Female", label), 1, 0),
-      across(ethnorace_columns,
-             ~ . / rowSums(across(ethnorace_columns)),
+      across(ethnorace_set,
+             ~ . / rowSums(across(ethnorace_set)),
              .names = "pr_{.col}|sex"),
-      across(ethnorace_columns,
+      across(ethnorace_set,
              ~ . / sum(.),
              .names = "pr_sex|{.col}")
     ) %>%
@@ -206,10 +209,10 @@ load_sex_age_data <- function(year, census_groups, vars) {
     summarise(across(-c(name, label), sum)) %>%
     ungroup() %>%
     mutate(
-      across(ethnorace_columns,
-             ~ . / rowSums(across(ethnorace_columns)),
+      across(ethnorace_set,
+             ~ . / rowSums(across(ethnorace_set)),
              .names = "pr_{.col}|age"),
-      across(ethnorace_columns,
+      across(ethnorace_set,
              ~ . / sum(.),
              .names = "pr_age|{.col}")
     ) %>%
@@ -225,4 +228,30 @@ load_sex_age_data <- function(year, census_groups, vars) {
 }
 
 
+# State -------------------------------------------------------------------
 
+load_geo_data <- function(geo, year = 2019, psuedocount = 1) {
+  geos <- censusapi::getCensus(
+    name = "acs/acs5",
+    vintage = year,
+    vars = "group(B03002)",
+    region = geo,
+  ) %>%
+    mutate(white = B03002_003E,
+           black = B03002_004E,
+           aian = B03002_005E,
+           api = B03002_006E + B03002_007E,
+           other = B03002_008E + B03002_009E + B03002_010E + B03002_011E,
+           hispanic = B03002_012E) %>%
+    mutate(
+      across(ethnorace_set,
+             ~ . / (rowSums(across(ethnorace_set)) + psuedocount),
+             .names = "pr_{.col}|geo"),
+      across(ethnorace_set,
+             ~ . / sum(.),
+             .names = "pr_geo|{.col}")
+    ) %>%
+    select(GEO_ID, contains("pr_"))
+
+  return(geos)
+}
