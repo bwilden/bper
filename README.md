@@ -7,6 +7,7 @@
 
 [![Codecov test
 coverage](https://codecov.io/gh/bwilden/bper/branch/main/graph/badge.svg)](https://codecov.io/gh/bwilden/bper?branch=main)
+[![R-CMD-check](https://github.com/bwilden/bper/workflows/R-CMD-check/badge.svg)](https://github.com/bwilden/bper/actions)
 <!-- badges: end -->
 
 This package provides functions for predicting an individual’s
