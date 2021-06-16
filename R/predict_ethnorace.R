@@ -1,24 +1,76 @@
 
 
+
+bper_naive_bayes <- function(data,
+                             priors_set = c("last", "first", "party", "multi-unit", "sex-age", "geo")) {
+
+  for (prior in priors_set) {
+    data <- data %>%
+      rowwise() %>%
+      mutate(norm_factor = !!sym(paste0("pr_aian|", prior)) *
+               prod(c_across(ends_with("aian") & !contains(prior))) +
+               !!sym(paste0("pr_api|", prior)) *
+               prod(c_across(ends_with("api") & !contains(prior))) +
+               !!sym(paste0("pr_black|", prior)) *
+               prod(c_across(ends_with("black") & !contains(prior))) +
+               !!sym(paste0("pr_hispanic|", prior)) *
+               prod(c_across(ends_with("hispanic") & !contains(prior))) +
+               !!sym(paste0("pr_other|", prior)) *
+               prod(c_across(ends_with("other") & !contains(prior))) +
+               !!sym(paste0("pr_white|", prior)) *
+               prod(c_across(ends_with("white") & !contains(prior))),
+             "pp_aian_{prior}" := !!sym(paste0("pr_aian|", prior)) *
+               prod(c_across(ends_with("|aian") & !contains(prior))) / norm_factor,
+             "pp_api_{prior}" :=  !!sym(paste0("pr_api|", prior)) *
+               prod(c_across(ends_with("|api") & !contains(prior))) / norm_factor,
+             "pp_black_{prior}" := !!sym(paste0("pr_black|", prior)) *
+               prod(c_across(ends_with("|black") & !contains(prior))) / norm_factor,
+             "pp_hispanic_{prior}" := !!sym(paste0("pr_hispanic|", prior)) *
+               prod(c_across(ends_with("|hispanic") & !contains(prior))) / norm_factor,
+             "pp_other_{prior}" := !!sym(paste0("pr_other|", prior)) *
+               prod(c_across(ends_with("|other") & !contains(prior))) / norm_factor,
+             "pp_white_{prior}" := !!sym(paste0("pr_white|", prior)) *
+               prod(c_across(ends_with("|white") & !contains(prior))) / norm_factor) %>%
+      select(-norm_factor) %>%
+      ungroup()
+  }
+
+  data <- data %>%
+    mutate(pred_aian = rowMeans(across(contains("pp_aian"))),
+           pred_api = rowMeans(across(contains("pp_api"))),
+           pred_black = rowMeans(across(contains("pp_black"))),
+           pred_hispanic = rowMeans(across(contains("pp_hispanic"))),
+           pred_other = rowMeans(across(contains("pp_other"))),
+           pred_white = rowMeans(across(contains("pp_white")))) %>%
+    rowwise() %>%
+    mutate(pred_race = purrr::pmap(across(contains("pred")),
+                                   ~ names(c(...)[which.max(c(...))]))) %>%
+    ungroup() %>%
+    mutate(pred_race = gsub("pred_", "", pred_race))
+
+  return(data)
+}
+
+
 #' Predict Ethnicity/Race
 #'
 #' Calculates posterior probabilities for individual ethnorace categories using
 #' the Naive Bayes algorithm. Also returns highest predicted race as a new
 #' string column in the data frame.
 #'
-#' @param df
+#' @param data
 #'
 #' @return Returns the original data.frame with the additional columns for
 #'   ethnorace probabilities and predicted category.
 #'
 #' @export
-predict_ethnorace <- function(df, bper_data = NULL, geo) {
+predict_ethnorace <- function(data, bper_data = NULL, geo) {
 
 # Prep Data/Correct Input Errors ------------------------------------------
 
-  original_columns <- colnames(df)
+  original_columns <- colnames(data)
 
-  df <- df %>% mutate(id = row_number()) %>%
+  predictions <- data %>% mutate(id = row_number()) %>%
     left_join(state_codes)
 
   if (is.null(bper_data)) {
@@ -37,7 +89,7 @@ predict_ethnorace <- function(df, bper_data = NULL, geo) {
     geos <- bper_data$geo
   }
 
-  df <- df %>%
+  predictions <- predictions %>%
     left_join(last_names) %>%
     left_join(first_names) %>%
     left_join(parties) %>%
@@ -45,25 +97,12 @@ predict_ethnorace <- function(df, bper_data = NULL, geo) {
     left_join(sex_ages, by = c("sex", "age")) %>%
     left_join(geos)
 
- df <- df %>%
-   rowwise() %>%
-   mutate(norm_factor = `pr_black|last` * prod(c_across(ends_with("|black") & !contains("last"))) +
-            `pr_white|last` * prod(c_across(ends_with("|white") & !contains("last"))) +
-            `pr_aian|last` * prod(c_across(ends_with("|aian") & !contains("last"))) +
-            `pr_api|last` * prod(c_across(ends_with("|api") & !contains("last"))) +
-            `pr_hispanic|last` * prod(c_across(ends_with("|hispanic") & !contains("last"))) +
-            `pr_other|last` * prod(c_across(ends_with("|other") & !contains("last"))),
-           pp_black = `pr_black|last` * prod(c_across(ends_with("|black") & !contains("last"))) / norm_factor,
-           pp_white = `pr_white|last` * prod(c_across(ends_with("|white") & !contains("last"))) / norm_factor,
-           pp_aian = `pr_aian|last` * prod(c_across(ends_with("|aian") & !contains("last"))) / norm_factor,
-           pp_api = `pr_api|last` * prod(c_across(ends_with("|api") & !contains("last"))) / norm_factor,
-           pp_hispanic = `pr_hispanic|last` * prod(c_across(ends_with("|hispanic") & !contains("last"))) / norm_factor,
-           pp_other = `pr_other|last` * prod(c_across(ends_with("|other") & !contains("last"))) / norm_factor)
+  predictions <- bper_naive_bayes(predictions)
 
-  df <- df %>%
-    select(all_of(original_columns), contains("pp"))
+  predictions <- predictions %>%
+    select(all_of(original_columns), contains("pred"))
 
-  return(df)
+  return(predictions)
 }
 
 
