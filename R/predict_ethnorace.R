@@ -58,7 +58,15 @@ bper_naive_bayes <- function(data,
 #' the Naive Bayes algorithm. Also returns highest predicted race as a new
 #' string column in the data frame.
 #'
-#' @param data
+#' @param data The input data frame containing the individuals whose ethnorace
+#'   the user wants to predict.
+#'
+#' @param bper_data The data list containing ethnorace conditional
+#'   probabilities. If left empty, will default to downloading directly from
+#'   Census API. Use the function `load_bper_data` to save this data ahead of
+#'   time.
+#'
+#' @param geo Input geography used to make predictions.
 #'
 #' @return Returns the original data.frame with the additional columns for
 #'   ethnorace probabilities and predicted category.

@@ -4,19 +4,18 @@
 \alias{predict_ethnorace}
 \title{Predict Ethnicity/Race}
 \usage{
-predict_ethnorace(df, dichotomize = FALSE)
+predict_ethnorace(data, bper_data = NULL, geo)
 }
 \arguments{
-\item{df}{A data frame containing some number of the following column names:
-\code{last_name}, \code{first_name}, \code{female}, \code{apartment},
-\code{party}, \code{birth_year}, \code{state}, \code{county}, \code{zip},
-\code{block}. No individual variable, or set of variables, is necessary for
-the algorithm to function, but including more information will yield better
-predictions (excluding geolocation variables). For each individual, only
-the most "granular" geolocation variable will be used.}
+\item{data}{The input data frame containing the individuals whose ethnorace
+the user wants to predict.}
 
-\item{dichotomize}{Indicates whether to create binary factor variables
-indicating an individual's category.}
+\item{bper_data}{The data list containing ethnorace conditional
+probabilities. If left empty, will default to downloading directly from
+Census API. Use the function \code{load_bper_data} to save this data ahead of
+time.}
+
+\item{geo}{Input geography used to make predictions.}
 }
 \value{
 Returns the original data.frame with the additional columns for
