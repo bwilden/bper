@@ -37,10 +37,13 @@ test_that("multi_unit data loads", {
 
 # Sex/Age -----------------------------------------------------------------
 
-sex_ages_test <- load_sex_age_data(vars = "both")
+sex_ages_test <- load_sex_age_data()
 
 test_that("sex_ages data loads", {
-  expect_is(sex_ages_test, "data.frame")
+  expect_is(sex_ages_test, "list")
+  expect_is(sex_ages_test$sex_ages, "data.frame")
+  expect_is(sex_ages_test$sexes, "data.frame")
+  expect_is(sex_ages_test$ages, "data.frame")
 })
 
 
