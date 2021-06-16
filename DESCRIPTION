@@ -17,7 +17,7 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-Suggests: 
+Suggests:
     covr,
     testthat
 Imports: 
@@ -25,6 +25,7 @@ Imports:
     stringr,
     tidyr,
     magrittr,
+    purrr,
     utils,
     here,
     censusapi
