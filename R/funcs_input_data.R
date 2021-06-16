@@ -145,10 +145,10 @@ load_multi_unit_data <- function(year = 2019) {
     mutate(
       across(ethnorace_set,
              ~ . / rowSums(across(ethnorace_set)),
-             .names = "pr_{.col}|multi_unit"),
+             .names = "pr_{.col}|multi-unit"),
       across(ethnorace_set,
              ~ . / sum(.),
-             .names = "pr_multi_unit|{.col}")
+             .names = "pr_multi-unit|{.col}")
     ) %>%
     select(multi_unit, contains("pr_"))
 
@@ -210,10 +210,10 @@ load_sex_age_data <- function(year = 2010, vars = "both") {
                     as.numeric(str_extract(label, "[:digit:]+"))),
       across(ethnorace_set,
              ~ . / rowSums(across(ethnorace_set)),
-             .names = "pr_{.col}|sex_age"),
+             .names = "pr_{.col}|sex-age"),
       across(ethnorace_set,
              ~ . / sum(.),
-             .names = "pr_sex_age|{.col}")
+             .names = "pr_sex-age|{.col}")
     ) %>%
     select(sex, age, contains("pr_"))
 
@@ -257,7 +257,7 @@ load_sex_age_data <- function(year = 2010, vars = "both") {
 }
 
 
-# State -------------------------------------------------------------------
+# Geo ---------------------------------------------------------------------
 
 load_geo_data <- function(geo, year = 2019, psuedocount = 1) {
   geos <- censusapi::getCensus(
