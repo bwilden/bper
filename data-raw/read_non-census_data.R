@@ -1,7 +1,11 @@
 
+# First names ethnorace data
+# Tzioumis (2018); https://www.nature.com/articles/sdata201825
 first_names <- readxl::read_xlsx(here::here("data-raw", "firstnames.xlsx"),
                                  sheet = "Data")
 
+# American National Election Survey for political party ethnorace data
+# https://electionstudies.org/data-center/anes-time-series-cumulative-data-file/
 anes <- haven::read_dta(here::here("data-raw", "anes_timeseries_cdf.dta")) %>%
   filter(VCF0004 >= 1996) %>%
   select(year = VCF0004, ethnorace = VCF0105a, party = VCF0303) %>%
@@ -28,8 +32,10 @@ anes <- haven::read_dta(here::here("data-raw", "anes_timeseries_cdf.dta")) %>%
             other = sum(ethnorace == "other", na.rm = T)) %>%
   ungroup()
 
+# State code concordance file
 state_codes <- readr::read_csv(here::here("data-raw", "state_code_conc.csv")) %>%
   mutate(GEO_ID = str_pad(STATE, width = 2, pad = "0")) %>%
   select(GEO_ID, state = STUSAB)
+
 
 usethis::use_data(first_names, anes, state_codes, overwrite = TRUE, internal = TRUE)
