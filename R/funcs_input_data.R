@@ -158,7 +158,7 @@ load_multi_unit_data <- function(year = 2019) {
 
 # Sex/Age -----------------------------------------------------------------
 
-load_sex_age_data <- function(year = 2010, vars = "both") {
+load_sex_age_data <- function(year = 2010) {
 
   census_groups = list(
     c("PCT12I", "white"),
@@ -247,13 +247,12 @@ load_sex_age_data <- function(year = 2010, vars = "both") {
     ) %>%
     select(age, contains("pr_"))
 
-  if (vars == "both") {
-    return(sex_ages)
-  } else if (vars == "sex") {
-    return(sexes)
-  } else if (vars == "age") {
-    return(ages)
-  }
+  sex_ages_data <- list(
+    "sex_ages" = sex_ages,
+    "sexes" = sexes,
+    "ages" = ages
+  )
+  return(sex_ages_data)
 }
 
 
