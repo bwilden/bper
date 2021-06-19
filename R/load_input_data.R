@@ -7,7 +7,7 @@ readRenviron("~/.Renviron")
 load_surnames_data <- function(year = 2010, psuedocount = 1) {
 
   suppressWarnings(
-    last_names <- censusapi::getCensus(
+    last_name <- censusapi::getCensus(
       name = "surname",
       vintage = year,
       vars = c(
@@ -41,7 +41,7 @@ load_surnames_data <- function(year = 2010, psuedocount = 1) {
       select(last_name = name, contains("pr_"))
   )
 
-  return(last_names)
+  return(last_name)
 }
 
 
@@ -49,7 +49,7 @@ load_surnames_data <- function(year = 2010, psuedocount = 1) {
 
 load_first_names_data <- function(psuedocount = 1) {
 
-  first_names <- first_names %>%
+  first_name <- first_name %>%
     mutate(
       across(contains("pct"),
              ~ as.numeric(.) / 100),
@@ -67,7 +67,7 @@ load_first_names_data <- function(psuedocount = 1) {
     rename_with( ~ str_replace_all(., "2prace", "other"), everything()) %>%
     select(first_name = firstname, contains("pr_"))
 
-  return(first_names)
+  return(first_name)
 }
 
 
@@ -83,7 +83,7 @@ load_parties_data <- function(year = 2020) {
     year <- 2020
   }
 
-  parties <- anes %>%
+  party <- anes %>%
     filter(year_group == year) %>%
     mutate(
       across(ethnorace_set,
@@ -95,7 +95,7 @@ load_parties_data <- function(year = 2020) {
     ) %>%
     select(party, contains("pr_"))
 
-  return(parties)
+  return(party)
 }
 
 
@@ -114,9 +114,9 @@ load_multi_unit_data <- function(year = 2019) {
     c("B25032I", "hispanic")
   )
 
-  multi_units <- tibble()
+  multi_unit <- tibble()
   for (group in census_groups) {
-    group_multi_units <- censusapi::getCensus(
+    group_multi_unit <- censusapi::getCensus(
       name = "acs/acs5",
       vintage = year,
       region = "us",
@@ -126,10 +126,10 @@ load_multi_unit_data <- function(year = 2019) {
       rename_with(~ str_remove(., group[1])) %>%
       mutate(group := group[2])
 
-    multi_units <- rbind(multi_units, group_multi_units)
+    multi_unit <- rbind(multi_unit, group_multi_unit)
   }
 
-  multi_units <- multi_units %>%
+  multi_unit <- multi_unit %>%
     group_by(group) %>%
     summarise(across(everything(), sum)) %>%
     ungroup() %>%
@@ -150,7 +150,7 @@ load_multi_unit_data <- function(year = 2019) {
     ) %>%
     select(multi_unit, contains("pr_"))
 
-  return(multi_units)
+  return(multi_unit)
 }
 
 
@@ -200,7 +200,7 @@ load_sex_age_data <- function(year = 2010) {
     pivot_wider(names_from = group) %>%
     left_join(labels, by = "name")
 
-  sex_ages <- sex_age_totals %>%
+  sex_age <- sex_age_totals %>%
     filter(!label %in% c("Total", "Total!!Female", "Total!!Male")) %>%
     mutate(
       sex = if_else(grepl("Female", label), 1, 0),
@@ -215,7 +215,7 @@ load_sex_age_data <- function(year = 2010) {
     ) %>%
     select(sex, age, contains("pr_"))
 
-  sexes <- sex_age_totals %>%
+  sex <- sex_age_totals %>%
     filter(label %in% c("Total!!Male", "Total!!Female")) %>%
     mutate(
       sex = if_else(grepl("Female", label), 1, 0),
@@ -228,7 +228,7 @@ load_sex_age_data <- function(year = 2010) {
     ) %>%
     select(sex, contains("pr_"))
 
-  ages <- sex_age_totals %>%
+  age <- sex_age_totals %>%
     filter(!label %in% c("Total", "Total!!Female", "Total!!Male")) %>%
     mutate(age = if_else(grepl("Under", label), 0,
                          as.numeric(str_extract(label, "[:digit:]+")))) %>%
@@ -245,44 +245,97 @@ load_sex_age_data <- function(year = 2010) {
     ) %>%
     select(age, contains("pr_"))
 
-  sex_ages_data <- list(
-    "sex_ages" = sex_ages,
-    "sexes" = sexes,
-    "ages" = ages
+  sex_age_data <- list(
+    "sex_age" = sex_age,
+    "sex" = sex,
+    "age" = age
   )
-  return(sex_ages_data)
+  return(sex_age_data)
 }
 
 
 # Geo ---------------------------------------------------------------------
 
-load_geo_data <- function(geo, year = 2019, psuedocount = 1) {
-  geos <- censusapi::getCensus(
-    name = "acs/acs5",
-    vintage = year,
-    vars = "group(B03002)",
-    region = geo,
-  ) %>%
-    mutate(white = B03002_003E,
-           black = B03002_004E,
-           aian = B03002_005E,
-           api = B03002_006E + B03002_007E,
-           other = B03002_008E + B03002_009E + B03002_010E + B03002_011E,
-           hispanic = B03002_012E) %>%
-    mutate(
-      across(ethnorace_set,
-             ~ . / (rowSums(across(ethnorace_set)) + psuedocount),
-             .names = "pr_{.col}|geo"),
-      across(ethnorace_set,
-             ~ . / sum(.),
-             .names = "pr_geo|{.col}")
-    ) %>%
-    select(GEO_ID, contains("pr_"))
-
-  if (geo == "state") {
-    geos <- geos %>%
-      mutate(GEO_ID = str_sub(GEO_ID, start = -2))
+load_acs5_data <- function(geo_level, states, year = 2019, psuedocount = 1) {
+  if (geo_level == "zip") {
+    geo_level <- "zip code tabulation area"
   }
 
-  return(geos)
+  if (states == "all") {
+    state_codes <- state_codes %>%
+      filter(state %notin% c("AS", "GU", "MP", "PR", "UM", "VI")) %>%
+      pull(GEO_ID)
+  } else {
+    state_codes <- state_codes %>%
+      filter(state %in% states) %>%
+      pull(GEO_ID)
+  }
+  geo <- tibble()
+
+  for (state in state_codes) {
+    state_data <- censusapi::getCensus(
+      name = "acs/acs5",
+      vintage = year,
+      vars = "group(B03002)",
+      region = geo_level,
+      regionin = paste("state", state, sep = ":")
+    ) %>%
+      mutate(
+        white = B03002_003E,
+        black = B03002_004E,
+        aian = B03002_005E,
+        api = B03002_006E + B03002_007E,
+        other = B03002_008E + B03002_009E + B03002_010E + B03002_011E,
+        hispanic = B03002_012E
+      ) %>%
+      mutate(
+        across(ethnorace_set,
+               ~ (. + psuedocount) / (rowSums(
+                 across(ethnorace_set)
+               ) + psuedocount * 6),
+               .names = "pr_{.col}|geo"),
+        across(ethnorace_set,
+               ~ (. + psuedocount) / sum(. + psuedocount * n()),
+               .names = "pr_geo|{.col}")
+      ) %>%
+      select(GEO_ID, contains("pr_"))
+    geo <- rbind(geo, state_data)
+  }
+
+  # Convert GEO_ID to appropriate columns
+  if (geo_level == "county") {
+    geo <- geo %>%
+      mutate(state = str_sub(GEO_ID, start = -5, end = -4),
+             county = str_sub(GEO_ID, start = -3)) %>%
+      select(state, county, everything(), -GEO_ID)
+  } else if (geo_level == "zip code tabulation area") {
+    geo <- geo %>%
+      mutate(zip = str_sub(GEO_ID, start = -5)) %>%
+      select(zip, everything(), -GEO_ID)
+  } else if (geo_level == "place") {
+    geo <- geo %>%
+      mutate(state = str_sub(GEO_ID, start = -7, end = -6),
+             place = str_sub(GEO_ID, start = -5)) %>%
+      select(state, place, everything(), -GEO_ID)
+  } else if (geo_level == "tract") {
+    geo <- geo %>%
+      mutate(state = str_sub(GEO_ID, start = -11, end = -10),
+             county = str_sub(GEO_ID, start = -9, end = -7),
+             tract = str_sub(GEO_ID, start = -6)) %>%
+      select(state, county, tract, everything(), -GEO_ID)
+  } else if (geo_level == "congressional district") {
+    geo <- geo %>%
+      mutate(state = str_sub(GEO_ID, start = -4, end = -3),
+             district = str_sub(GEO_ID, start = -2)) %>%
+      select(state, district, everything(), -GEO_ID)
+  }
+  return(geo)
 }
+
+
+# censusapi::listCensusMetadata(
+#   name = "acs/acs5",
+#   vintage = 2019,
+#   type = "geographies",
+#   group = "B03002") %>%
+#   View()
