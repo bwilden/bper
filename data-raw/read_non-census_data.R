@@ -1,7 +1,7 @@
 
 # First names ethnorace data
 # Tzioumis (2018); https://www.nature.com/articles/sdata201825
-first_name <- readxl::read_xlsx(here::here("data-raw", "firstnames.xlsx"),
+first_names <- readxl::read_xlsx(here::here("data-raw", "firstnames.xlsx"),
                                  sheet = "Data")
 
 # American National Election Survey for political party ethnorace data
@@ -34,8 +34,8 @@ anes <- haven::read_dta(here::here("data-raw", "anes_timeseries_cdf.dta")) %>%
 
 # State code concordance file
 state_codes <- readr::read_csv(here::here("data-raw", "state_code_conc.csv")) %>%
-  mutate(GEO_ID = str_pad(STATE, width = 2, pad = "0")) %>%
-  select(GEO_ID, state = STUSAB)
+  mutate(state_code = str_pad(STATE, width = 2, pad = "0")) %>%
+  select(state_code, state = STUSAB)
 
 # Possible ethnorace outputs
 ethnorace_set <- c("aian", "api", "black", "hispanic", "other", "white")
