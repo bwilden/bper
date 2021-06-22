@@ -75,7 +75,7 @@ bper_naive_bayes <- function(data, priors_set) {
 #' the Naive Bayes algorithm. Also returns highest predicted race as a new
 #' string column in the data frame.
 #'
-#' @param data The input data frame containing the individuals whose ethnorace
+#' @param input_data The input data frame containing the individuals whose ethnorace
 #'   the user wants to predict.
 #'
 #' @param bper_data The data list containing ethnorace conditional
@@ -83,83 +83,59 @@ bper_naive_bayes <- function(data, priors_set) {
 #'   Census API. Use the function `load_bper_data` to save this data ahead of
 #'   time.
 #'
-#' @param geo Input geography used to make predictions.
-#'
 #' @return Returns the original data.frame with the additional columns for
 #'   ethnorace probabilities and predicted category.
 #'
 #' @export
-predict_ethnorace <- function(data, bper_data = NULL, geo) {
-  original_columns <- colnames(data)
-
-  data <- data %>% mutate(id = row_number()) %>%
-    left_join(state_codes)
-
-  input_set <- c()
+predict_ethnorace <- function(input_data = example_persons, bper_data = NULL, geo_level) {
   if (is.null(bper_data)) {
-    if ("last_name" %in% original_columns) {
-      data <- data %>% left_join(load_surnames_data())
-      input_set <- c(input_set, "last")
-    }
-    if ("first_name" %in% original_columns) {
-      data <- data %>% left_join(load_first_names_data())
-      input_set <- c(input_set, "first")
-    }
-    if ("party" %in% original_columns) {
-      data <- data %>% left_join(load_parties_data())
-      input_set <- c(input_set, "party")
-    }
-    if ("multi_unit" %in% original_columns) {
-      data <- data %>% left_join(load_multi_unit_data())
-      input_set <- c(input_set, "multi-unit")
-    }
-    if ("sex" %in% original_columns
-        & "age" %in% original_columns) {
-      data <- data %>% left_join(load_sex_age_data()$sex_ages)
-      input_set <- c(input_set, "sex-age")
-    } else if ("sex" %in% original_columns) {
-      data <- data %>% left_join(load_sex_age_data()$sexes)
-      input_set <- c(input_set, "sex")
-    } else if ("age" %in% original_columns) {
-      data <- data %>% left_join(load_sex_age_data()$ages)
-      input_set <- c(input_set, "age")
-    }
-  } else {
-    if ("last_name" %in% original_columns) {
-      data <- data %>% left_join(bper_data$last_names)
-      input_set <- c(input_set, "last")
-    }
-    if ("first_name" %in% original_columns) {
-      data <- data %>% left_join(bper_data$first_names)
-      input_set <- c(input_set, "first")
-    }
-    if ("party" %in% original_columns) {
-      data <- data %>% left_join(bper_data$parties)
-      input_set <- c(input_set, "party")
-    }
-    if ("multi_unit" %in% original_columns) {
-      data <- data %>% left_join(bper_data$multi_units)
-      input_set <- c(input_set, "multi-unit")
-    }
-    if ("sex" %in% original_columns
-        & "age" %in% original_columns) {
-      data <- data %>% left_join(bper_data$sex_ages$sex_ages)
-      input_set <- c(input_set, "sex-age")
-    } else if ("sex" %in% original_columns) {
-      data <- data %>% left_join(bper_data$sex_ages$sexes)
-      input_set <- c(input_set, "sex")
-    } else if ("age" %in% original_columns) {
-      data <- data %>% left_join(bper_data$sex_ages$ages)
-      input_set <- c(input_set, "age")
-    }
+    bper_data <- load_bper_data(geo_level)
   }
 
-  data <- bper_naive_bayes(data, priors_set = input_set)
+  original_columns <- colnames(input_data)
 
-  data <- data %>%
+  input_data <- input_data %>% mutate(id = row_number()) %>%
+    left_join(state_codes)
+
+  input_vars <- c()
+  if ("last_name" %in% original_columns) {
+    input_data <- left_join(input_data, bper_data$last_names)
+    input_vars <- c(input_vars, "last")
+  }
+  if ("first_name" %in% original_columns) {
+    input_data <- left_join(input_data, bper_data$first_names)
+    input_vars <- c(input_vars, "first")
+  }
+  if ("party" %in% original_columns) {
+    input_data <- left_join(input_data, bper_data$parties)
+    input_vars <- c(input_vars, "party")
+  }
+  if ("multi_unit" %in% original_columns) {
+    input_data <- left_join(input_data, bper_data$multi_units)
+    input_vars <- c(input_vars, "multi-unit")
+  }
+  if ("county" %in% original_columns) {
+    input_data <- left_join(input_data, bper_data$counties)
+    input_vars <- c(input_vars, "geo")
+  }
+  if ("sex" %in% original_columns &
+      "age" %in% original_columns) {
+    input_data <- left_join(input_data, bper_data$sex_ages)
+    input_vars <- c(input_vars, "sex-age")
+  } else if ("sex" %in% original_columns) {
+    input_data <- left_join(input_data, bper_data$sexes)
+    input_vars <- c(input_vars, "sex")
+  } else if ("age" %in% original_columns) {
+    input_data <- left_join(input_data, bper_data$ages)
+    input_vars <- c(input_vars, "age")
+  }
+
+  input_data <- bper_naive_bayes(input_data, priors_set = input_vars)
+
+  output_data <- input_data %>%
     select(all_of(original_columns), contains("pred"))
 
-  return(data)
+  return(output_data)
 }
 
 
