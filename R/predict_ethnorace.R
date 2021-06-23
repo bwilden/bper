@@ -87,50 +87,25 @@ bper_naive_bayes <- function(data, priors_set) {
 #'   ethnorace probabilities and predicted category.
 #'
 #' @export
-predict_ethnorace <- function(input_data = example_persons, bper_data = NULL, geo_level) {
-  if (is.null(bper_data)) {
-    bper_data <- load_bper_data(geo_level)
-  }
-
+predict_ethnorace <- function(input_data = example_persons, bper_data = NULL) {
   original_columns <- colnames(input_data)
 
-  input_data <- input_data %>% mutate(id = row_number()) %>%
-    left_join(state_codes)
+  # input_data <- input_data %>%
+  #   mutate(id = row_number()) %>%
+  #   left_join(state_codes)
 
-  input_vars <- c()
-  if ("last_name" %in% original_columns) {
-    input_data <- left_join(input_data, bper_data$last_names)
-    input_vars <- c(input_vars, "last")
-  }
-  if ("first_name" %in% original_columns) {
-    input_data <- left_join(input_data, bper_data$first_names)
-    input_vars <- c(input_vars, "first")
-  }
-  if ("party" %in% original_columns) {
-    input_data <- left_join(input_data, bper_data$parties)
-    input_vars <- c(input_vars, "party")
-  }
-  if ("multi_unit" %in% original_columns) {
-    input_data <- left_join(input_data, bper_data$multi_units)
-    input_vars <- c(input_vars, "multi-unit")
-  }
-  if ("county" %in% original_columns) {
-    input_data <- left_join(input_data, bper_data$counties)
-    input_vars <- c(input_vars, "geo")
-  }
-  if ("sex" %in% original_columns &
-      "age" %in% original_columns) {
-    input_data <- left_join(input_data, bper_data$sex_ages)
-    input_vars <- c(input_vars, "sex-age")
-  } else if ("sex" %in% original_columns) {
-    input_data <- left_join(input_data, bper_data$sexes)
-    input_vars <- c(input_vars, "sex")
-  } else if ("age" %in% original_columns) {
-    input_data <- left_join(input_data, bper_data$ages)
-    input_vars <- c(input_vars, "age")
+   if (is.null(bper_data)) {
+    bper_data <- load_bper_data(input_data)
   }
 
-  input_data <- bper_naive_bayes(input_data, priors_set = input_vars)
+  for (data_set in names(bper_data)) {
+    if (data_set %in% bper_vars) {
+      input_data <- left_join(input_data, bper_data[[data_set]])
+    }
+  }
+
+
+  input_data <- bper_naive_bayes(input_data, priors_set = bper_data$input_vars)
 
   output_data <- input_data %>%
     select(all_of(original_columns), contains("pred"))
