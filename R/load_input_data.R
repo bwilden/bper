@@ -256,12 +256,17 @@ load_sex_age_data <- function(year = 2010) {
 
 # Geo ---------------------------------------------------------------------
 
-load_acs5_data <- function(geo_level, states, year = 2019, psuedocount = 1) {
+load_geo_data <- function(geo_level, states = "all", year = 2019, psuedocount = 1) {
+  if (geo_level %in% c("state", "county", "zip", "place", "tract", "congressional district")) {
+    census_file <- "acs/acs5"
+    census_vars <- "group(B03002)"
+  }
   if (geo_level == "zip") {
     geo_level <- "zip code tabulation area"
   }
-
-  if (states[1] == "all") {
+  if (states[1] == "all" & geo_level == "state") {
+    state_codes <- ""
+  } else if (states[1] == "all") {
     state_codes <- state_codes %>%
       filter(state %notin% c("AS", "GU", "MP", "PR", "UM", "VI")) %>%
       pull(state_code)
@@ -270,24 +275,33 @@ load_acs5_data <- function(geo_level, states, year = 2019, psuedocount = 1) {
       filter(state %in% states) %>%
       pull(state_code)
   }
-  geo <- tibble()
 
+  geo <- tibble()
   for (state in state_codes) {
+    if (geo_level == "state") {
+      census_regions <- NULL
+    } else {
+      census_regions <- paste("state", state, sep = ":")
+    }
     state_data <- censusapi::getCensus(
-      name = "acs/acs5",
+      name = census_file,
       vintage = year,
-      vars = "group(B03002)",
+      vars = census_vars,
       region = geo_level,
-      regionin = paste("state", state, sep = ":")
-    ) %>%
-      mutate(
-        white = B03002_003E,
-        black = B03002_004E,
-        aian = B03002_005E,
-        api = B03002_006E + B03002_007E,
-        other = B03002_008E + B03002_009E + B03002_010E + B03002_011E,
-        hispanic = B03002_012E
-      ) %>%
+      regionin = census_regions
+    )
+    if (census_vars == "group(B03002)") {
+      state_data <- state_data %>%
+        mutate(
+          white = B03002_003E,
+          black = B03002_004E,
+          aian = B03002_005E,
+          api = B03002_006E + B03002_007E,
+          other = B03002_008E + B03002_009E + B03002_010E + B03002_011E,
+          hispanic = B03002_012E
+        )
+    }
+    state_data <- state_data %>%
       mutate(
         across(ethnorace_set,
                ~ (. + psuedocount) / (rowSums(
@@ -303,7 +317,11 @@ load_acs5_data <- function(geo_level, states, year = 2019, psuedocount = 1) {
   }
 
   # Convert GEO_ID to appropriate columns
-  if (geo_level == "county") {
+  if (geo_level == "state") {
+    geo <- geo %>%
+      mutate(state_code = str_sub(GEO_ID, start = -2)) %>%
+      select(state_code, everything(), -GEO_ID)
+  } else if (geo_level == "county") {
     geo <- geo %>%
       mutate(state_code = str_sub(GEO_ID, start = -5, end = -4),
              county = str_sub(GEO_ID, start = -3)) %>%
