@@ -91,7 +91,6 @@ predict_ethnorace <- function(input_data = example_persons, bper_data = NULL) {
   original_columns <- colnames(input_data)
 
   input_data <- input_data %>%
-    mutate(id = row_number()) %>%
     left_join(state_codes)
 
    if (is.null(bper_data)) {
