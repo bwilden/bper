@@ -90,9 +90,9 @@ bper_naive_bayes <- function(data, priors_set) {
 predict_ethnorace <- function(input_data = example_persons, bper_data = NULL) {
   original_columns <- colnames(input_data)
 
-  # input_data <- input_data %>%
-  #   mutate(id = row_number()) %>%
-  #   left_join(state_codes)
+  input_data <- input_data %>%
+    mutate(id = row_number()) %>%
+    left_join(state_codes)
 
    if (is.null(bper_data)) {
     bper_data <- load_bper_data(input_data)
@@ -104,13 +104,32 @@ predict_ethnorace <- function(input_data = example_persons, bper_data = NULL) {
     }
   }
 
+  for (ethnorace in ethnorace_set) {
+    input_data <- input_data %>%
+      mutate("pr_{ethnorace}|geo" := case_when(
+        is.na(!!sym(paste0("pr_", ethnorace, "|county"))) ~
+          !!sym(paste0("pr_", ethnorace, "|state")),
+        is.na(!!sym(paste0("pr_", ethnorace, "|tract"))) ~
+          !!sym(paste0("pr_", ethnorace, "|county")),
+        TRUE ~ !!sym(paste0("pr_", ethnorace, "|tract"))),
+        "pr_geo|{ethnorace}" := case_when(
+          is.na(!!sym(paste0("pr_county|", ethnorace))) ~
+            !!sym(paste0("pr_state|", ethnorace)),
+          is.na(!!sym(paste0("pr_tract|", ethnorace))) ~
+            !!sym(paste0("pr_county|", ethnorace)),
+          TRUE ~ !!sym(paste0("pr_tract|", ethnorace))))
+  }
 
-  input_data <- bper_naive_bayes(input_data, priors_set = bper_data$input_vars)
+  input_data <- input_data %>%
+    select(all_of(original_columns), contains(bper_data$input_vars))
 
-  output_data <- input_data %>%
-    select(all_of(original_columns), contains("pred"))
+   input_data <- bper_naive_bayes(input_data, priors_set = bper_data$input_vars)
 
-  return(output_data)
+   input_data <- input_data %>%
+     select(all_of(original_columns), contains("pred_"))
+
+
+  return(input_data)
 }
 
 
