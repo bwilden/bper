@@ -256,15 +256,22 @@ load_sex_age_data <- function(year = 2010) {
 
 # Geo ---------------------------------------------------------------------
 
-load_geo_data <- function(geo_level, states = "all", year = 2019, psuedocount = 1) {
-  if (geo_level %in% c("state", "county", "zip", "place", "tract", "congressional district")) {
+load_geo_data <- function(geo_level, states = NULL, year = 2019, psuedocount = 1) {
+  # Set census file and variable names
+  if (geo_level %in% c("state", "county", "zip", "place", "tract", "district")) {
     census_file <- "acs/acs5"
     census_vars <- "group(B03002)"
   }
+  # Set census geographies
   if (geo_level == "zip") {
-    geo_level <- "zip code tabulation area"
+    census_geo <- "zip code tabulation area"
+  } else if (geo_level == "district") {
+    census_geo <- "congressional district"
+  } else {
+    census_geo <- geo_level
   }
-  if (states[1] == "all" & geo_level == "state") {
+  # Set census state codes
+  if (geo_level == "state") {
     state_codes <- ""
   } else if (states[1] == "all") {
     state_codes <- state_codes %>%
@@ -287,7 +294,7 @@ load_geo_data <- function(geo_level, states = "all", year = 2019, psuedocount = 
       name = census_file,
       vintage = year,
       vars = census_vars,
-      region = geo_level,
+      region = census_geo,
       regionin = census_regions
     )
     if (census_vars == "group(B03002)") {
@@ -326,7 +333,7 @@ load_geo_data <- function(geo_level, states = "all", year = 2019, psuedocount = 
       mutate(state_code = str_sub(GEO_ID, start = -5, end = -4),
              county = str_sub(GEO_ID, start = -3)) %>%
       select(state_code, county, everything(), -GEO_ID)
-  } else if (geo_level == "zip code tabulation area") {
+  } else if (geo_level == "zip") {
     geo <- geo %>%
       mutate(zip = str_sub(GEO_ID, start = -5)) %>%
       select(zip, everything(), -GEO_ID)
@@ -341,12 +348,15 @@ load_geo_data <- function(geo_level, states = "all", year = 2019, psuedocount = 
              county = str_sub(GEO_ID, start = -9, end = -7),
              tract = str_sub(GEO_ID, start = -6)) %>%
       select(state_code, county, tract, everything(), -GEO_ID)
-  } else if (geo_level == "congressional district") {
+  } else if (geo_level == "district") {
     geo <- geo %>%
       mutate(state_code = str_sub(GEO_ID, start = -4, end = -3),
              district = str_sub(GEO_ID, start = -2)) %>%
       select(state_code, district, everything(), -GEO_ID)
   }
+
+  geo <- geo %>%
+    rename_with(~ str_replace_all(., "geo", geo_level), everything())
   return(geo)
 }
 
