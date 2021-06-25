@@ -49,7 +49,7 @@ test_that("sex_ages data loads", {
 
 # Geo ---------------------------------------------------------------------
 
-geos_test <- load_geo_data("state")
+geos_test <- load_geo_data(geo_level = "state")
 
 test_that("geos data loads", {
   expect_is(geos_test, "data.frame")
