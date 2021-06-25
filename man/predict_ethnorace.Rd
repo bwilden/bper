@@ -4,18 +4,16 @@
 \alias{predict_ethnorace}
 \title{Predict Ethnicity/Race}
 \usage{
-predict_ethnorace(data, bper_data = NULL, geo)
+predict_ethnorace(input_data = example_persons, bper_data = NULL)
 }
 \arguments{
-\item{data}{The input data frame containing the individuals whose ethnorace
+\item{input_data}{The input data frame containing the individuals whose ethnorace
 the user wants to predict.}
 
 \item{bper_data}{The data list containing ethnorace conditional
 probabilities. If left empty, will default to downloading directly from
 Census API. Use the function \code{load_bper_data} to save this data ahead of
 time.}
-
-\item{geo}{Input geography used to make predictions.}
 }
 \value{
 Returns the original data.frame with the additional columns for
