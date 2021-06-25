@@ -13,6 +13,6 @@ example_persons <- tibble(
   sex = c(0, 0, 1, 1, 0, 0, 1, 1, 1),
   party = c("DEM", "DEM", "DEM", "REP", "UNA", "DEM", "REP", "UNA", "DEM"),
   multi_unit = c(1, 0, 1, 1, 1, 1, 0, 1, 0),
-  state = c("CA", "VA", "FL", "HI", "TX", "NC", "MI", "NY", "LA"),
-  county = c("037", "087", "101", "003", "201", "083", "087", "047", NA_character_),
-  tract = c("113401", "200104", "030904", "008918", "240902", "930800", NA_character_, NA_character_, NA_character_))
+  state = c("LA", "LA", "LA", "WA", "WA", "WA", "MI", "MI", "MI"),
+  county = c("045", "071", "051", "001", "033", "009", "149", "163", NA_character_),
+  tract = c("030200", "012500", "020302", "950200", "027500", "940000", NA_character_, NA_character_, NA_character_))
