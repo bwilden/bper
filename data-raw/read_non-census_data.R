@@ -42,7 +42,7 @@ ethnorace_set <- c("aian", "api", "black", "hispanic", "other", "white")
 
 # Possible input data columns
 bper_vars <- c("last_names", "first_names", "sex_ages", "ages", "sexes", "parties",
-               "multi_units", "states", "places", "zips", "tracts", "blocks")
+               "counties", "multi_units", "states", "places", "zips", "tracts", "blocks")
 
 
 usethis::use_data(first_names, anes, state_codes, bper_vars, ethnorace_set,
