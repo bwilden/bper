@@ -88,14 +88,19 @@ bper_naive_bayes <- function(data, priors_set) {
 #'
 #' @export
 predict_ethnorace <- function(input_data = example_persons, bper_data = NULL) {
-  original_columns <- colnames(input_data)
-
-  input_data <- input_data %>%
-    left_join(state_codes)
-
-   if (is.null(bper_data)) {
+  if (is.null(bper_data)) {
     bper_data <- load_bper_data(input_data)
   }
+
+  original_columns <- colnames(input_data)
+
+  for (geo_level in bper_geos) {
+    if (geo_level %notin% original_columns) {
+      input_data <- mutate(input_data, "{geo_level}" := NA_character_)
+    }
+  }
+
+  input_data <- left_join(input_data, state_codes)
 
   for (data_set in names(bper_data)) {
     if (data_set %in% bper_vars) {
@@ -103,21 +108,24 @@ predict_ethnorace <- function(input_data = example_persons, bper_data = NULL) {
     }
   }
 
-  for (ethnorace in ethnorace_set) {
-    input_data <- input_data %>%
-      mutate("pr_{ethnorace}|geo" := case_when(
-        is.na(!!sym(paste0("pr_", ethnorace, "|county"))) ~
-          !!sym(paste0("pr_", ethnorace, "|state")),
-        is.na(!!sym(paste0("pr_", ethnorace, "|tract"))) ~
-          !!sym(paste0("pr_", ethnorace, "|county")),
-        TRUE ~ !!sym(paste0("pr_", ethnorace, "|tract"))),
-        "pr_geo|{ethnorace}" := case_when(
-          is.na(!!sym(paste0("pr_county|", ethnorace))) ~
-            !!sym(paste0("pr_state|", ethnorace)),
-          is.na(!!sym(paste0("pr_tract|", ethnorace))) ~
-            !!sym(paste0("pr_county|", ethnorace)),
-          TRUE ~ !!sym(paste0("pr_tract|", ethnorace))))
+  if ("state" %in% original_columns) {
+    for (ethnorace in ethnorace_set) {
+      input_data <- input_data %>%
+        mutate("pr_{ethnorace}|geo" := case_when(
+          is.na(!!sym(paste0("pr_", ethnorace, "|county"))) ~
+            !!sym(paste0("pr_", ethnorace, "|state")),
+          is.na(!!sym(paste0("pr_", ethnorace, "|tract"))) ~
+            !!sym(paste0("pr_", ethnorace, "|county")),
+          TRUE ~ !!sym(paste0("pr_", ethnorace, "|tract"))),
+          "pr_geo|{ethnorace}" := case_when(
+            is.na(!!sym(paste0("pr_county|", ethnorace))) ~
+              !!sym(paste0("pr_state|", ethnorace)),
+            is.na(!!sym(paste0("pr_tract|", ethnorace))) ~
+              !!sym(paste0("pr_county|", ethnorace)),
+            TRUE ~ !!sym(paste0("pr_tract|", ethnorace))))
+    }
   }
+
 
   input_data <- input_data %>%
     select(all_of(original_columns), contains(bper_data$input_vars))
@@ -126,7 +134,6 @@ predict_ethnorace <- function(input_data = example_persons, bper_data = NULL) {
 
    input_data <- input_data %>%
      select(all_of(original_columns), contains("pred_"))
-
 
   return(input_data)
 }
