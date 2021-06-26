@@ -41,9 +41,13 @@ state_codes <- readr::read_csv(here::here("data-raw", "state_code_conc.csv")) %>
 ethnorace_set <- c("aian", "api", "black", "hispanic", "other", "white")
 
 # Possible input data columns
-bper_vars <- c("last_names", "first_names", "sex_ages", "ages", "sexes", "parties",
-               "counties", "multi_units", "states", "places", "zips", "tracts", "blocks")
+bper_vars <- c("last_names", "first_names", "sex_ages", "ages", "sexes", "parties", "multi_units",
+               "counties", "states", "places", "zips", "tracts", "blocks", "districts")
+
+# Possible geographic levels
+bper_geos <- c("state", "county", "zip", "place", "tract", "block", "district")
 
 
-usethis::use_data(first_names, anes, state_codes, bper_vars, ethnorace_set,
+usethis::use_data(first_names, anes, state_codes,
+                  bper_vars, ethnorace_set, bper_geos,
                   overwrite = TRUE, internal = TRUE)
