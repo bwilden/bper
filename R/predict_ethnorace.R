@@ -1,5 +1,94 @@
 
 
+
+#' Predict Ethnicity/Race
+#'
+#' Calculates posterior probabilities for individual ethnorace categories using
+#' the Naive Bayes algorithm. Also returns highest predicted race as a new
+#' string column in the data frame.
+#'
+#' @param input_data The input data frame containing the individuals whose ethnorace
+#'   the user wants to predict.
+#'
+#' @param bper_data The data list containing ethnorace conditional
+#'   probabilities. If left empty, will default to downloading directly from
+#'   Census API. Use the function `load_bper_data` to save this data ahead of
+#'   time.
+#'
+#' @return Returns the original data.frame with the additional columns for
+#'   ethnorace probabilities and predicted category.
+#'
+#' @export
+predict_ethnorace <- function(input_data = example_persons, bper_data = NULL, year) {
+  if (is.null(bper_data)) {
+    bper_data <- load_bper_data(input_data, year = year)
+  }
+
+  original_columns <- colnames(input_data)
+
+  # Fill in missing geography columns
+  for (geo_level in bper_geos) {
+    if (geo_level %notin% original_columns) {
+      input_data <- mutate(input_data, "{geo_level}" := NA_character_)
+    }
+  }
+
+  input_data <- left_join(input_data, state_codes)
+
+  # Merge in input data that match columns in original data
+  for (data_set in names(bper_data)) {
+    if (data_set %in% bper_vars) {
+      input_data <- left_join(input_data, bper_data[[data_set]])
+    }
+  }
+
+  # Select geography conditional probabilities
+  # at finest level of geography available per individual
+  if ("state" %in% original_columns) {
+    for (ethnorace in ethnorace_set) {
+      input_data <- input_data %>%
+        mutate("pr_{ethnorace}|geo" := case_when(
+          is.na(!!sym(paste0("pr_", ethnorace, "|county"))) ~
+            !!sym(paste0("pr_", ethnorace, "|state")),
+          is.na(!!sym(paste0("pr_", ethnorace, "|place"))) ~
+            !!sym(paste0("pr_", ethnorace, "|county")),
+          is.na(!!sym(paste0("pr_", ethnorace, "|zip"))) ~
+            !!sym(paste0("pr_", ethnorace, "|place")),
+          is.na(!!sym(paste0("pr_", ethnorace, "|tract"))) ~
+            !!sym(paste0("pr_", ethnorace, "|zip")),
+          is.na(!!sym(paste0("pr_", ethnorace, "|block"))) ~
+            !!sym(paste0("pr_", ethnorace, "|tract")),
+          TRUE ~ !!sym(paste0("pr_", ethnorace, "|block"))),
+          "pr_geo|{ethnorace}" := case_when(
+            is.na(!!sym(paste0("pr_county|", ethnorace))) ~
+              !!sym(paste0("pr_state|", ethnorace)),
+            is.na(!!sym(paste0("pr_place|", ethnorace))) ~
+              !!sym(paste0("pr_county|", ethnorace)),
+            is.na(!!sym(paste0("pr_zip|", ethnorace))) ~
+              !!sym(paste0("pr_place|", ethnorace)),
+            is.na(!!sym(paste0("pr_tract|", ethnorace))) ~
+              !!sym(paste0("pr_zip|", ethnorace)),
+            is.na(!!sym(paste0("pr_block|", ethnorace))) ~
+              !!sym(paste0("pr_tract|", ethnorace)),
+            TRUE ~ !!sym(paste0("pr_block|", ethnorace))))
+    }
+  }
+
+  # Remove extraneous geography columns
+  input_data <- input_data %>%
+    select(all_of(original_columns), contains(bper_data$input_vars))
+
+  # Perform ethnorace probability calculations
+  input_data <- bper_naive_bayes(input_data, priors_set = bper_data$input_vars)
+
+
+  input_data <- input_data %>%
+     select(all_of(original_columns), contains("pred_"))
+
+  return(input_data)
+}
+
+
 # Naive Bayes computation function
 bper_naive_bayes <- function(data, priors_set) {
   for (prior in priors_set) {
@@ -67,75 +156,3 @@ bper_naive_bayes <- function(data, priors_set) {
 
   return(data)
 }
-
-
-#' Predict Ethnicity/Race
-#'
-#' Calculates posterior probabilities for individual ethnorace categories using
-#' the Naive Bayes algorithm. Also returns highest predicted race as a new
-#' string column in the data frame.
-#'
-#' @param input_data The input data frame containing the individuals whose ethnorace
-#'   the user wants to predict.
-#'
-#' @param bper_data The data list containing ethnorace conditional
-#'   probabilities. If left empty, will default to downloading directly from
-#'   Census API. Use the function `load_bper_data` to save this data ahead of
-#'   time.
-#'
-#' @return Returns the original data.frame with the additional columns for
-#'   ethnorace probabilities and predicted category.
-#'
-#' @export
-predict_ethnorace <- function(input_data = example_persons, bper_data = NULL) {
-  if (is.null(bper_data)) {
-    bper_data <- load_bper_data(input_data)
-  }
-
-  original_columns <- colnames(input_data)
-
-  for (geo_level in bper_geos) {
-    if (geo_level %notin% original_columns) {
-      input_data <- mutate(input_data, "{geo_level}" := NA_character_)
-    }
-  }
-
-  input_data <- left_join(input_data, state_codes)
-
-  for (data_set in names(bper_data)) {
-    if (data_set %in% bper_vars) {
-      input_data <- left_join(input_data, bper_data[[data_set]])
-    }
-  }
-
-  if ("state" %in% original_columns) {
-    for (ethnorace in ethnorace_set) {
-      input_data <- input_data %>%
-        mutate("pr_{ethnorace}|geo" := case_when(
-          is.na(!!sym(paste0("pr_", ethnorace, "|county"))) ~
-            !!sym(paste0("pr_", ethnorace, "|state")),
-          is.na(!!sym(paste0("pr_", ethnorace, "|tract"))) ~
-            !!sym(paste0("pr_", ethnorace, "|county")),
-          TRUE ~ !!sym(paste0("pr_", ethnorace, "|tract"))),
-          "pr_geo|{ethnorace}" := case_when(
-            is.na(!!sym(paste0("pr_county|", ethnorace))) ~
-              !!sym(paste0("pr_state|", ethnorace)),
-            is.na(!!sym(paste0("pr_tract|", ethnorace))) ~
-              !!sym(paste0("pr_county|", ethnorace)),
-            TRUE ~ !!sym(paste0("pr_tract|", ethnorace))))
-    }
-  }
-
-
-  input_data <- input_data %>%
-    select(all_of(original_columns), contains(bper_data$input_vars))
-
-   input_data <- bper_naive_bayes(input_data, priors_set = bper_data$input_vars)
-
-   input_data <- input_data %>%
-     select(all_of(original_columns), contains("pred_"))
-
-  return(input_data)
-}
-
-
