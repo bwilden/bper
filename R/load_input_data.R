@@ -4,8 +4,7 @@ readRenviron("~/.Renviron")
 
 # Last Names --------------------------------------------------------------
 
-load_surnames_data <- function(year = 2010, psuedocount = 1) {
-
+load_surnames_data <- function(year, psuedocount = 1) {
   suppressWarnings(
     last_names <- censusapi::getCensus(
       name = "surname",
@@ -48,7 +47,6 @@ load_surnames_data <- function(year = 2010, psuedocount = 1) {
 # First Names -------------------------------------------------------------
 
 load_first_names_data <- function(psuedocount = 1) {
-
   first_names <- first_names %>%
     mutate(
       across(contains("pct"),
@@ -73,16 +71,7 @@ load_first_names_data <- function(psuedocount = 1) {
 
 # Party ID ----------------------------------------------------------------
 
-load_parties_data <- function(year = 2020) {
-
-  if (year <= 2005) {
-    year <- 2000
-  } else if (year <= 2015) {
-    year <- 2010
-  } else {
-    year <- 2020
-  }
-
+load_parties_data <- function(year) {
   parties <- anes %>%
     filter(year_group == year) %>%
     mutate(
@@ -101,7 +90,11 @@ load_parties_data <- function(year = 2020) {
 
 # Multi-Unit Occupancy ----------------------------------------------------
 
-load_multi_unit_data <- function(year = 2019) {
+load_multi_unit_data <- function(year) {
+  # To-do: find pre-2009 data file
+  if (year < 2009) {
+    year <- 2009
+  }
 
   census_groups = list(
     c("B25032A", "white"),
@@ -156,7 +149,9 @@ load_multi_unit_data <- function(year = 2019) {
 
 # Sex/Age -----------------------------------------------------------------
 
-load_sex_age_data <- function(year = 2010) {
+load_sex_age_data <- function(year) {
+  # To-do: find data files for years beside 2010
+  year <- 2010
 
   census_groups = list(
     c("PCT12I", "white"),
@@ -256,12 +251,13 @@ load_sex_age_data <- function(year = 2010) {
 
 # Geo ---------------------------------------------------------------------
 
-load_geo_data <- function(geo_level, states = NULL, year = 2019, psuedocount = 1) {
+load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 1) {
   # Set census file and variable names
   if (geo_level %in% c("state", "county", "zip", "place", "tract", "district")) {
     census_file <- "acs/acs5"
     census_vars <- "group(B03002)"
   }
+
   # Set census geographies
   if (geo_level == "zip") {
     census_geo <- "zip code tabulation area"
@@ -270,8 +266,9 @@ load_geo_data <- function(geo_level, states = NULL, year = 2019, psuedocount = 1
   } else {
     census_geo <- geo_level
   }
+
   # Set census state codes
-  if (geo_level == "state") {
+  if (geo_level %in% c("state", "zip")) {
     state_codes <- ""
   } else if (states[1] == "all") {
     state_codes <- state_codes %>%
@@ -283,31 +280,56 @@ load_geo_data <- function(geo_level, states = NULL, year = 2019, psuedocount = 1
       pull(state_code)
   }
 
+  # Placeholder tibble for combined state geo data
   geo <- tibble()
+  # Loop through each state
   for (state in state_codes) {
-    if (geo_level == "state") {
-      census_regions <- NULL
+    # For block geo_level grab data from github repo
+    # https://github.com/bwilden/bper_data
+    if (geo_level == "block") {
+      state_data <- readr::read_csv(
+        paste0("https://github.com/bwilden/bper_data/blob/master/data/",
+               year,
+               "/blocks_",
+               year,
+               "_",
+               state,
+               ".csv?raw=true"),
+        col_types = readr::cols()
+      ) %>%
+        unite(GEO_ID, "state_code", "county", "tract", "block")
+    # Non-block geo_level access through census api
     } else {
-      census_regions <- paste("state", state, sep = ":")
+      if (geo_level %in% c("state", "zip")) {
+        census_regions <- NULL
+      } else {
+        census_regions <- paste("state", state, sep = ":")
+      }
+      # To-do: fix ACS-5 year restriction
+      if (year < 2009) {
+        year <- 2009
+      }
+      state_data <- censusapi::getCensus(
+        name = census_file,
+        vintage = year,
+        vars = census_vars,
+        region = census_geo,
+        regionin = census_regions
+      )
+      # Grab ethnorace count variables by geo unit
+      if (census_vars == "group(B03002)") {
+        state_data <- state_data %>%
+          mutate(
+            white = B03002_003E,
+            black = B03002_004E,
+            aian = B03002_005E,
+            api = B03002_006E + B03002_007E,
+            other = B03002_008E + B03002_009E + B03002_010E + B03002_011E,
+            hispanic = B03002_012E
+          )
+      }
     }
-    state_data <- censusapi::getCensus(
-      name = census_file,
-      vintage = year,
-      vars = census_vars,
-      region = census_geo,
-      regionin = census_regions
-    )
-    if (census_vars == "group(B03002)") {
-      state_data <- state_data %>%
-        mutate(
-          white = B03002_003E,
-          black = B03002_004E,
-          aian = B03002_005E,
-          api = B03002_006E + B03002_007E,
-          other = B03002_008E + B03002_009E + B03002_010E + B03002_011E,
-          hispanic = B03002_012E
-        )
-    }
+    # Perform conditional probability calculations
     state_data <- state_data %>%
       mutate(
         across(ethnorace_set,
@@ -320,6 +342,7 @@ load_geo_data <- function(geo_level, states = NULL, year = 2019, psuedocount = 1
                .names = "pr_geo|{.col}")
       ) %>%
       select(GEO_ID, contains("pr_"))
+
     geo <- rbind(geo, state_data)
   }
 
@@ -353,17 +376,14 @@ load_geo_data <- function(geo_level, states = NULL, year = 2019, psuedocount = 1
       mutate(state_code = str_sub(GEO_ID, start = -4, end = -3),
              district = str_sub(GEO_ID, start = -2)) %>%
       select(state_code, district, everything(), -GEO_ID)
+  } else if (geo_level == "block") {
+    geo <- geo %>%
+      separate(GEO_ID, into = c("state_code", "county", "tract", "block"))
   }
 
+  # Tidy up column names
   geo <- geo %>%
     rename_with(~ str_replace_all(., "geo", geo_level), everything())
+
   return(geo)
 }
-
-
-# censusapi::listCensusMetadata(
-#   name = "acs/acs5",
-#   vintage = 2019,
-#   type = "geographies",
-#   group = "B03002") %>%
-#   View()
