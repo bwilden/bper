@@ -6,13 +6,18 @@
 #' @export
 example_persons <- tibble(
   first_name = c("BERT", "LYNDON", "BELINDA", "ANNA",
-                 "KARL", "MATHIEU", "LIAM", "KAI", "PAMELLA"),
+                 "KARL", "MATHIEU", "LIAM", "KAI", "PAMELLA", "WALT"),
   last_name = c("WILDEN", "WITHER", "LOBOS", "ARENA",
-                "SOM", "TURA", "SZYMONIAK", "WALKO", "CHANEL"),
-  age = c(28, 30, 33, 90, 13, 50, 20, 78, 65),
-  sex = c(0, 0, 1, 1, 0, 0, 1, 1, 1),
-  party = c("DEM", "DEM", "DEM", "REP", "UNA", "DEM", "REP", "UNA", "DEM"),
-  multi_unit = c(1, 0, 1, 1, 1, 1, 0, 1, 0),
-  state = c("LA", "LA", "LA", "WA", "WA", "WA", "MI", "MI", "MI"),
-  county = c("045", "071", "051", "001", "033", "009", "149", "163", NA_character_),
-  tract = c("030200", "012500", "020302", "950200", "027500", "940000", NA_character_, NA_character_, NA_character_))
+                "SOM", "TURA", "SZYMONIAK", "WALKO", "CHANEL", "BROOKE"),
+  age = c(28, 30, 33, 90, 13, 50, 20, 78, 65, 18),
+  sex = c(0, 0, 1, 1, 0, 0, 1, 1, 1, 0),
+  party = c("DEM", "DEM", "DEM", "REP", "UNA", "DEM", "REP", "UNA", "DEM", "REP"),
+  multi_unit = c(1, 0, 1, 1, 1, 1, 0, 1, 0, 0),
+  state = c("LA", "LA", "LA", "NM", "NM", "LA", "NM", "LA", "LA", "NM"),
+  county = c("019", "119", "071", "013", "001", "029", "045", "051", "047", "001"),
+  tract = c("002201", "031400", "000616", "000700", "000108", "000400", "000401", "021804", "953101", "940600"),
+  block = c("3036", "1015", "3024", "3008", "1000", "5015", "1000", "1021", "2040", "1185"),
+  place = c("99999", "68125", "55000", "39380", "02000", "78470", "25800", "50115", "60880", "54940"),
+  zip = c("70611", "71071", "70131", "88001", "87111", "71373", "87401", "70006", "70764", "87121"),
+  district = c("07", "04", "02", "02", "01", "05", "03", "01", "05", "01")) %>%
+    select(-district)
