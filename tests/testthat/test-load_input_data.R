@@ -1,7 +1,7 @@
 
 # Last Names --------------------------------------------------------------
 
-last_names_test <- load_surnames_data()
+last_names_test <- load_surnames_data(year = 2010)
 
 test_that("surnames data loads", {
   expect_is(last_names_test, "data.frame")
@@ -19,7 +19,7 @@ test_that("first names data loads", {
 
 # Party ID ----------------------------------------------------------------
 
-parties_test <- load_parties_data()
+parties_test <- load_parties_data(year = 2010)
 
 test_that("parties data loads", {
   expect_is(parties_test, "data.frame")
@@ -28,7 +28,7 @@ test_that("parties data loads", {
 
 # Multi-Unit Occupancy ----------------------------------------------------
 
-multi_unit_test <- load_multi_unit_data()
+multi_unit_test <- load_multi_unit_data(year = 2010)
 
 test_that("multi_unit data loads", {
   expect_is(multi_unit_test, "data.frame")
@@ -37,7 +37,7 @@ test_that("multi_unit data loads", {
 
 # Sex/Age -----------------------------------------------------------------
 
-sex_ages_test <- load_sex_age_data()
+sex_ages_test <- load_sex_age_data(year = 2010)
 
 test_that("sex_ages data loads", {
   expect_is(sex_ages_test, "list")
@@ -49,7 +49,7 @@ test_that("sex_ages data loads", {
 
 # Geo ---------------------------------------------------------------------
 
-geos_test <- load_geo_data(geo_level = "state")
+geos_test <- load_geo_data(geo_level = "state", year = 2010)
 
 test_that("geos data loads", {
   expect_is(geos_test, "data.frame")
