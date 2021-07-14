@@ -5,10 +5,13 @@ readRenviron("~/.Renviron")
 # Last Names --------------------------------------------------------------
 
 load_surnames_data <- function(year, psuedocount = 1) {
+  data_years <- c(2000, 2010)
+  closest_year <- data_years[which.min(abs(data_years - year))]
+
   suppressWarnings(
     last_names <- censusapi::getCensus(
       name = "surname",
-      vintage = year,
+      vintage = closest_year,
       vars = c(
         "COUNT",
         "PCTWHITE",
@@ -72,8 +75,11 @@ load_first_names_data <- function(psuedocount = 1) {
 # Party ID ----------------------------------------------------------------
 
 load_parties_data <- function(year) {
+  data_years <- c(2000, 2010, 2020)
+  closest_year <- data_years[which.min(abs(data_years - year))]
+
   parties <- anes %>%
-    filter(year_group == year) %>%
+    filter(year_group == closest_year) %>%
     mutate(
       across(ethnorace_set,
              ~ . / rowSums(across(ethnorace_set)),
@@ -91,33 +97,56 @@ load_parties_data <- function(year) {
 # Multi-Unit Occupancy ----------------------------------------------------
 
 load_multi_unit_data <- function(year) {
-  # To-do: find pre-2009 data file
-  if (year < 2009) {
-    year <- 2009
-  }
+  data_years <- c(1980, 1990, 2000, 2009:2019)
+  closest_year <- data_years[which.min(abs(data_years - year))]
 
-  census_groups = list(
-    c("B25032A", "white"),
-    c("B25032B", "black"),
-    c("B25032C", "aian"),
-    c("B25032D", "api"),
-    c("B25032E", "api"),
-    c("B25032F", "other"),
-    c("B25032G", "other"),
-    c("B25032I", "hispanic")
-  )
+  if (closest_year >= 2009) {
+    census_file <- "acs/acs5"
+    census_groups <- list(
+      c("B25032A", "white"),
+      c("B25032B", "black"),
+      c("B25032C", "aian"),
+      c("B25032D", "api"),
+      c("B25032E", "api"),
+      c("B25032F", "other"),
+      c("B25032G", "other"),
+      c("B25032I", "hispanic")
+    )
+  } else if (closest_year == 2000) {
+    census_file <- "dec/sf3"
+    census_groups <- list(
+      c("HCT030E", "api"),
+      c("HCT030F", "other"),
+      c("HCT030G", "other"),
+      c("HCT030B", "black"),
+      c("HCT030C", "aian"),
+      c("HCT030D", "api"),
+      c("HCT030I", "white"),
+      c("HCT030H", "hispanic")
+    )
+  }
 
   multi_units <- tibble()
   for (group in census_groups) {
     group_multi_unit <- censusapi::getCensus(
-      name = "acs/acs5",
-      vintage = year,
+      name = census_file,
+      vintage = closest_year,
       region = "us",
       vars = paste0("group(", group[1], ")")
-    ) %>%
-      select(ends_with("E"), -NAME) %>%
-      rename_with(~ str_remove(., group[1])) %>%
-      mutate(group := group[2])
+    )
+    if (census_file == "acs/acs5") {
+      group_multi_unit <- group_multi_unit %>%
+        rename_with(~ str_remove(., paste0(group[1], "_"))) %>%
+        rename_with(~ str_remove(., "E"))
+    } else if (census_file == "dec/sf3") {
+      group_multi_unit <- group_multi_unit %>%
+        rename_with(~ str_remove(., group[1]))
+    }
+    group_multi_unit <- group_multi_unit %>%
+        mutate(single_unit = `002` + `003` + `011` + `010`,
+               multi_unit = `001` - single_unit,
+               group := group[2]) %>%
+        select(group, multi_unit, single_unit)
 
     multi_units <- rbind(multi_units, group_multi_unit)
   }
@@ -128,16 +157,11 @@ load_multi_unit_data <- function(year) {
     ungroup() %>%
     pivot_longer(cols = !group) %>%
     pivot_wider(names_from = group) %>%
-    filter(name != "_001E") %>%
-    mutate(multi_unit = if_else(name %in% c("_002E", "_003E", "_010E", "_011E"), 0, 1)) %>%
-    group_by(multi_unit) %>%
-    summarise(across(-name, sum)) %>%
-    ungroup() %>%
-    mutate(
-      across(ethnorace_set,
+    mutate(multi_unit = if_else(name == "multi_unit", 1, 0),
+      across(all_of(ethnorace_set),
              ~ . / rowSums(across(ethnorace_set)),
              .names = "pr_{.col}|multi-unit"),
-      across(ethnorace_set,
+      across(all_of(ethnorace_set),
              ~ . / sum(.),
              .names = "pr_multi-unit|{.col}")
     ) %>%
