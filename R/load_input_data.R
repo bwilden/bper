@@ -97,7 +97,7 @@ load_parties_data <- function(year) {
 # Multi-Unit Occupancy ----------------------------------------------------
 
 load_multi_unit_data <- function(year) {
-  data_years <- c(1980, 1990, 2000, 2009:2019)
+  data_years <- c(2000, 2009:2019)
   closest_year <- data_years[which.min(abs(data_years - year))]
 
   if (closest_year >= 2009) {
@@ -174,25 +174,38 @@ load_multi_unit_data <- function(year) {
 # Sex/Age -----------------------------------------------------------------
 
 load_sex_age_data <- function(year) {
-  # To-do: find data files for years beside 2010
-  year <- 2010
+  data_years <- c(2000, 2010)
+  closest_year <- data_years[which.min(abs(data_years - year))]
 
-  census_groups = list(
-    c("PCT12I", "white"),
-    c("PCT12J", "black"),
-    c("PCT12K", "aian"),
-    c("PCT12L", "api"),
-    c("PCT12M", "api"),
-    c("PCT12N", "other"),
-    c("PCT12O", "other"),
-    c("PCT12H", "hispanic")
-  )
+  if (closest_year == 2010) {
+    census_groups = list(
+      c("PCT12I", "white"),
+      c("PCT12J", "black"),
+      c("PCT12K", "aian"),
+      c("PCT12L", "api"),
+      c("PCT12M", "api"),
+      c("PCT12N", "other"),
+      c("PCT12O", "other"),
+      c("PCT12H", "hispanic")
+    )
+  } else if (closest_year == 2000) {
+    census_groups = list(
+      c("PCT012I", "white"),
+      c("PCT012J", "black"),
+      c("PCT012K", "aian"),
+      c("PCT012L", "api"),
+      c("PCT012M", "api"),
+      c("PCT012N", "other"),
+      c("PCT012O", "other"),
+      c("PCT012H", "hispanic")
+    )
+  }
 
   sex_age_totals <- tibble()
   for (group in census_groups) {
     sex_age_totals_group <- censusapi::getCensus(
       name = "dec/sf1",
-      vintage = year,
+      vintage = closest_year,
       region = "us",
       vars = paste0("group(", group[1], ")")
     ) %>%
@@ -205,7 +218,7 @@ load_sex_age_data <- function(year) {
 
   labels <- censusapi::listCensusMetadata(
     name = "dec/sf1",
-    vintage = year,
+    vintage = closest_year,
     type = "variables",
     group = census_groups[[1]][1]) %>%
     mutate(name = str_sub(name, start = 8)) %>%
