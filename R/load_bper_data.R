@@ -2,9 +2,7 @@
 load_bper_data <- function(input_df, year) {
   input_vars <- c()
   if ("last_name" %in% colnames(input_df)) {
-    data_years <- c(2000, 2010)
-    closest_year <- data_years[which.min(abs(data_years - year))]
-    last_names <- load_surnames_data(year = closest_year)
+    last_names <- load_surnames_data(year = year)
     input_vars <- c(input_vars, "last")
   }
   if ("first_name" %in% colnames(input_df)) {
@@ -12,9 +10,7 @@ load_bper_data <- function(input_df, year) {
     input_vars <- c(input_vars, "first")
   }
   if ("party" %in% colnames(input_df)) {
-    data_years <- c(2000, 2010, 2020)
-    closest_year <- data_years[which.min(abs(data_years - year))]
-    parties <- load_parties_data(year = closest_year)
+    parties <- load_parties_data(year = year)
     input_vars <- c(input_vars, "party")
   }
   if ("multi_unit" %in% colnames(input_df)) {
