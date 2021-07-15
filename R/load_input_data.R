@@ -133,20 +133,14 @@ load_multi_unit_data <- function(year) {
       vintage = closest_year,
       region = "us",
       vars = paste0("group(", group[1], ")")
-    )
-    if (census_file == "acs/acs5") {
-      group_multi_unit <- group_multi_unit %>%
-        rename_with(~ str_remove(., paste0(group[1], "_"))) %>%
-        rename_with(~ str_remove(., "E"))
-    } else if (census_file == "dec/sf3") {
-      group_multi_unit <- group_multi_unit %>%
-        rename_with(~ str_remove(., group[1]))
-    }
-    group_multi_unit <- group_multi_unit %>%
-        mutate(single_unit = `002` + `003` + `011` + `010`,
-               multi_unit = `001` - single_unit,
-               group := group[2]) %>%
-        select(group, multi_unit, single_unit)
+    ) %>%
+      select(-ends_with(c("A", "M"))) %>%
+      rename_with( ~ str_extract(str_remove(., group[1]),
+                                 "\\d+"), contains(group[1])) %>%
+      mutate(single_unit = `002` + `003` + `010` + `011`,
+             multi_unit = `001` - single_unit,
+             group := group[2]) %>%
+      select(group, multi_unit, single_unit)
 
     multi_units <- rbind(multi_units, group_multi_unit)
   }
@@ -349,11 +343,11 @@ load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 1) {
       state_data <- censusapi::getCensus(
         name = census_file,
         vintage = year,
-        vars = census_vars,
         region = census_geo,
-        regionin = census_regions
+        regionin = census_regions,
+        vars = census_vars
       )
-      # Grab ethnorace count variables by geo unit
+      # Get ethnorace count variables by geo unit
       if (census_vars == "group(B03002)") {
         state_data <- state_data %>%
           mutate(
@@ -363,6 +357,16 @@ load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 1) {
             api = B03002_006E + B03002_007E,
             other = B03002_008E + B03002_009E + B03002_010E + B03002_011E,
             hispanic = B03002_012E
+          )
+      } else if (census_vars == "group(P008)") {
+        state_data <- state_data %>%
+          mutate(
+            white = P008003,
+            black = P008004,
+            aian = P008005,
+            api = P008006 + P008007,
+            other = P008009 + P008008,
+            hispanic = P008010
           )
       }
     }
