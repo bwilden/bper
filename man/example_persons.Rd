@@ -5,7 +5,7 @@
 \alias{example_persons}
 \title{Example Persons Data Set}
 \format{
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 10 rows and 13 columns.
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 10 rows and 12 columns.
 }
 \usage{
 example_persons
