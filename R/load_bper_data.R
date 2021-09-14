@@ -20,13 +20,13 @@ load_bper_data <- function(input_df, year) {
 
   if ("sex" %in% colnames(input_df) &
       "age" %in% colnames(input_df)) {
-    sex_ages <- load_sex_age_data()$sex_ages
+    sex_ages <- load_sex_age_data(year)$sex_ages
     input_vars <- c(input_vars, "sex-age")
   } else if ("sex" %in% colnames(input_df)) {
-    sexes <- load_sex_age_data()$sexes
+    sexes <- load_sex_age_data(year)$sexes
     input_vars <- c(input_vars, "sex")
   } else if ("age" %in% colnames(input_df)) {
-    ages <- load_sex_age_data()$ages
+    ages <- load_sex_age_data(year)$ages
     input_vars <- c(input_vars, "age")
   }
 
