@@ -15,6 +15,8 @@
 #'   Census API. Use the function `load_bper_data` to save this data ahead of
 #'   time.
 #'
+#' @param year The year for which Census data will be loaded
+#'
 #' @return Returns the original data.frame with the additional columns for
 #'   ethnorace probabilities and predicted category.
 #'

@@ -4,7 +4,7 @@
 \alias{predict_ethnorace}
 \title{Predict Ethnicity/Race}
 \usage{
-predict_ethnorace(input_data = example_persons, bper_data = NULL)
+predict_ethnorace(input_data = example_persons, bper_data = NULL, year)
 }
 \arguments{
 \item{input_data}{The input data frame containing the individuals whose ethnorace
@@ -14,6 +14,8 @@ the user wants to predict.}
 probabilities. If left empty, will default to downloading directly from
 Census API. Use the function \code{load_bper_data} to save this data ahead of
 time.}
+
+\item{year}{The year for which Census data will be loaded}
 }
 \value{
 Returns the original data.frame with the additional columns for
