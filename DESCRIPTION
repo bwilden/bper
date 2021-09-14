@@ -22,6 +22,7 @@ Suggests:
     testthat
 Imports: 
     dplyr,
+    readr,
     stringr,
     tidyr,
     magrittr,
