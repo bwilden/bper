@@ -47,30 +47,21 @@ predict_ethnorace <- function(input_data = example_persons, bper_data = NULL, ye
   if ("state" %in% original_columns) {
     for (ethnorace in ethnorace_set) {
       input_data <- input_data %>%
-        mutate("pr_{ethnorace}|geo" := case_when(
-          is.na(!!sym(paste0("pr_", ethnorace, "|county"))) ~
-            !!sym(paste0("pr_", ethnorace, "|state")),
-          is.na(!!sym(paste0("pr_", ethnorace, "|place"))) ~
-            !!sym(paste0("pr_", ethnorace, "|county")),
-          is.na(!!sym(paste0("pr_", ethnorace, "|zip"))) ~
-            !!sym(paste0("pr_", ethnorace, "|place")),
-          is.na(!!sym(paste0("pr_", ethnorace, "|tract"))) ~
-            !!sym(paste0("pr_", ethnorace, "|zip")),
-          is.na(!!sym(paste0("pr_", ethnorace, "|block"))) ~
-            !!sym(paste0("pr_", ethnorace, "|tract")),
-          TRUE ~ !!sym(paste0("pr_", ethnorace, "|block"))),
-          "pr_geo|{ethnorace}" := case_when(
-            is.na(!!sym(paste0("pr_county|", ethnorace))) ~
-              !!sym(paste0("pr_state|", ethnorace)),
-            is.na(!!sym(paste0("pr_place|", ethnorace))) ~
-              !!sym(paste0("pr_county|", ethnorace)),
-            is.na(!!sym(paste0("pr_zip|", ethnorace))) ~
-              !!sym(paste0("pr_place|", ethnorace)),
-            is.na(!!sym(paste0("pr_tract|", ethnorace))) ~
-              !!sym(paste0("pr_zip|", ethnorace)),
-            is.na(!!sym(paste0("pr_block|", ethnorace))) ~
-              !!sym(paste0("pr_tract|", ethnorace)),
-            TRUE ~ !!sym(paste0("pr_block|", ethnorace))))
+        mutate("pr_{ethnorace}|geo" :=
+                 ifelse(is.na(county), !!sym(paste0("pr_", ethnorace, "|state")),
+                 ifelse(is.na(place), !!sym(paste0("pr_", ethnorace, "|county")),
+                 ifelse(is.na(zip), !!sym(paste0("pr_", ethnorace, "|place")),
+                 ifelse(is.na(place), !!sym(paste0("pr_", ethnorace, "|zip")),
+                 ifelse(is.na(block), !!sym(paste0("pr_", ethnorace, "|tract")),
+                 !!sym(paste0("pr_", ethnorace, "|block"))))))),
+              "pr_geo|{ethnorace}" :=
+                 ifelse(is.na(county), !!sym(paste0("pr_state|", ethnorace)),
+                 ifelse(is.na(place), !!sym(paste0("pr_county|", ethnorace)),
+                 ifelse(is.na(zip), !!sym(paste0("pr_place|", ethnorace)),
+                 ifelse(is.na(tract), !!sym(paste0("pr_zip|", ethnorace)),
+                 ifelse(is.na(block), !!sym(paste0("pr_tract|", ethnorace)),
+                 !!sym(paste0("pr_block|", ethnorace)))))))
+        )
     }
   }
 
@@ -152,7 +143,8 @@ bper_naive_bayes <- function(data, priors_set) {
     mutate(pred_race = purrr::pmap(across(contains("pred")),
                                    ~ names(c(...)[which.max(c(...))]))) %>%
     ungroup() %>%
-    mutate(pred_race = gsub("pred_", "", pred_race))
+    mutate(pred_race = gsub("pred_", "", pred_race)) %>%
+    select(pred_race, everything())
 
   return(data)
 }
