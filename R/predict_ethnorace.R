@@ -15,7 +15,7 @@
 #'   Census API. Use the function `load_bper_data` to save this data ahead of
 #'   time.
 #'
-#' @param year The year for which Census data will be loaded
+#' @param year The year for which Census data will be loaded.
 #'
 #' @return Returns the original data.frame with the additional columns for
 #'   ethnorace probabilities and predicted category.
@@ -28,13 +28,6 @@ predict_ethnorace <- function(input_data = example_persons, bper_data = NULL, ye
 
   original_columns <- colnames(input_data)
 
-  # Fill in missing geography columns
-  for (geo_level in bper_geos) {
-    if (geo_level %notin% original_columns) {
-      input_data <- mutate(input_data, "{geo_level}" := NA_character_)
-    }
-  }
-
   input_data <- left_join(input_data, state_codes)
 
   # Merge in input data that match columns in original data
@@ -44,27 +37,53 @@ predict_ethnorace <- function(input_data = example_persons, bper_data = NULL, ye
     }
   }
 
+  # Fill in missing geography columns
+  for (geo_level in bper_geos) {
+    if (geo_level %notin% original_columns) {
+      for (ethnorace in ethnorace_set) {
+        input_data <- input_data %>%
+          mutate("pr_{ethnorace}|{geo_level}" := NA_character_,
+                 "pr_{geo_level}|{ethnorace}" := NA_character_)
+      }
+    }
+  }
+
   # Select geography conditional probabilities
   # at finest level of geography available per individual
-  if ("state" %in% original_columns) {
-    for (ethnorace in ethnorace_set) {
-      input_data <- input_data %>%
-        mutate("pr_{ethnorace}|geo" :=
-                 ifelse(is.na(county), !!sym(paste0("pr_", ethnorace, "|state")),
-                 ifelse(is.na(place), !!sym(paste0("pr_", ethnorace, "|county")),
-                 ifelse(is.na(zip), !!sym(paste0("pr_", ethnorace, "|place")),
-                 ifelse(is.na(place), !!sym(paste0("pr_", ethnorace, "|zip")),
-                 ifelse(is.na(block), !!sym(paste0("pr_", ethnorace, "|tract")),
-                 !!sym(paste0("pr_", ethnorace, "|block"))))))),
-              "pr_geo|{ethnorace}" :=
-                 ifelse(is.na(county), !!sym(paste0("pr_state|", ethnorace)),
-                 ifelse(is.na(place), !!sym(paste0("pr_county|", ethnorace)),
-                 ifelse(is.na(zip), !!sym(paste0("pr_place|", ethnorace)),
-                 ifelse(is.na(tract), !!sym(paste0("pr_zip|", ethnorace)),
-                 ifelse(is.na(block), !!sym(paste0("pr_tract|", ethnorace)),
-                 !!sym(paste0("pr_block|", ethnorace)))))))
-        )
-    }
+  for (ethnorace in ethnorace_set) {
+    input_data <- input_data %>%
+      mutate("pr_{ethnorace}|geo" :=
+               ifelse(!is.na(!!sym(paste0("pr_", ethnorace, "|block"))),
+                      !!sym(paste0("pr_", ethnorace, "|block")),
+               ifelse(!is.na(!!sym(paste0("pr_", ethnorace, "|tract"))),
+                      !!sym(paste0("pr_", ethnorace, "|tract")),
+               ifelse(!is.na(!!sym(paste0("pr_", ethnorace, "|zip"))),
+                      !!sym(paste0("pr_", ethnorace, "|zip")),
+               ifelse(!is.na(!!sym(paste0("pr_", ethnorace, "|place"))),
+                      !!sym(paste0("pr_", ethnorace, "|place")),
+               ifelse(!is.na(!!sym(paste0("pr_", ethnorace, "|district"))),
+                      !!sym(paste0("pr_", ethnorace, "|district")),
+               ifelse(!is.na(!!sym(paste0("pr_", ethnorace, "|county"))),
+                      !!sym(paste0("pr_", ethnorace, "|county")),
+               ifelse(!is.na(!!sym(paste0("pr_", ethnorace, "|state"))),
+                      !!sym(paste0("pr_", ethnorace, "|state")),
+               NA_real_))))))),
+            "pr_geo|{ethnorace}" :=
+              ifelse(!is.na(!!sym(paste0("pr_block|", ethnorace))),
+                     !!sym(paste0("pr_block|", ethnorace)),
+               ifelse(!is.na(!!sym(paste0("pr_tract|", ethnorace))),
+                      !!sym(paste0("pr_tract|", ethnorace)),
+               ifelse(!is.na(!!sym(paste0("pr_zip|", ethnorace))),
+                      !!sym(paste0("pr_zip|", ethnorace)),
+               ifelse(!is.na(!!sym(paste0("pr_place|", ethnorace))),
+                      !!sym(paste0("pr_place|", ethnorace)),
+               ifelse(!is.na(!!sym(paste0("pr_district|", ethnorace))),
+                      !!sym(paste0("pr_district|", ethnorace)),
+               ifelse(!is.na(!!sym(paste0("pr_county|", ethnorace))),
+                      !!sym(paste0("pr_county|", ethnorace)),
+               ifelse(!is.na(!!sym(paste0("pr_state|", ethnorace))),
+                      !!sym(paste0("pr_state|", ethnorace)),
+               NA_real_))))))))
   }
 
   # Remove extraneous geography columns
