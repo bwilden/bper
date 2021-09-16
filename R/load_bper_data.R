@@ -43,13 +43,10 @@ load_bper_data <- function(input_df, year) {
                       year = year)
     }
     if ("zip" %in% colnames(input_df)) {
-      if (year < 2011) {
-        closest_year <- 2011
-      }
       zips <-
         load_geo_data(geo_level = "zip",
                       states = input_states,
-                      year = closest_year)
+                      year = year)
     }
     if ("place" %in% colnames(input_df)) {
       places <-
@@ -70,12 +67,10 @@ load_bper_data <- function(input_df, year) {
                       year = year)
     }
     if ("block" %in% colnames(input_df)) {
-      data_years <- c(1990, 2000, 2010)
-      closest_year <- data_years[which.min(abs(data_years - year))]
       blocks <-
         load_geo_data(geo_level = "block",
                       state = input_states,
-                      year = closest_year)
+                      year = year)
     }
     input_vars <- c(input_vars, "geo")
   }
