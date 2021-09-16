@@ -1,7 +1,4 @@
 
-Sys.setenv(CENSUS_KEY = "5e4c2b8438222753a7f4753fa78855eca73b9950")
-readRenviron("~/.Renviron")
-
 # Last Names --------------------------------------------------------------
 
 load_surnames_data <- function(year, psuedocount = 1) {
@@ -283,8 +280,18 @@ load_sex_age_data <- function(year) {
 # Geo ---------------------------------------------------------------------
 
 load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 1) {
+  # Set closest year from years data is available
+  if (geo_level == "block") {
+    data_years <- c(1990, 2000, 2010)
+  } else if (geo_level == "zip") {
+    data_years <- c(2011:2019)
+  } else {
+    data_years <- c(2009:2019)
+  }
+  closest_year <- data_years[which.min(abs(data_years - year))]
+
   # Set census file and variable names
-  if (geo_level %in% c("state", "county", "zip", "place", "tract", "district")) {
+  if (closest_year >= 2009) {
     census_file <- "acs/acs5"
     census_vars <- "group(B03002)"
   }
@@ -320,9 +327,9 @@ load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 1) {
     if (geo_level == "block") {
       state_data <- readr::read_csv(
         paste0("https://github.com/bwilden/bper_data/blob/master/data/",
-               year,
+               closest_year,
                "/blocks_",
-               year,
+               closest_year,
                "_",
                state,
                ".csv?raw=true"),
@@ -336,13 +343,9 @@ load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 1) {
       } else {
         census_regions <- paste("state", state, sep = ":")
       }
-      # To-do: fix ACS-5 year restriction
-      if (year < 2009) {
-        year <- 2009
-      }
       state_data <- censusapi::getCensus(
         name = census_file,
-        vintage = year,
+        vintage = closest_year,
         region = census_geo,
         regionin = census_regions,
         vars = census_vars
