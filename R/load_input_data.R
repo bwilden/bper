@@ -282,11 +282,11 @@ load_sex_age_data <- function(year) {
 load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 1) {
   # Set closest year from years data is available
   if (geo_level == "block") {
-    data_years <- c(1990, 2000, 2010)
+    data_years <- c(2000, 2010)
   } else if (geo_level == "zip") {
-    data_years <- c(2011:2019)
+    data_years <- c(2000, 2011:2019)
   } else {
-    data_years <- c(2009:2019)
+    data_years <- c(2000, 2009:2019)
   }
   closest_year <- data_years[which.min(abs(data_years - year))]
 
@@ -294,6 +294,9 @@ load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 1) {
   if (closest_year >= 2009) {
     census_file <- "acs/acs5"
     census_vars <- "group(B03002)"
+  } else if (closest_year < 2009) {
+    census_file <- "dec/sf1"
+    census_vars <- "group(P008)"
   }
 
   # Set census geographies
