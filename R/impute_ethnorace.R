@@ -1,29 +1,39 @@
 
-
-
-#' Predict Ethnicity/Race
+#' Impute Ethnicity/Race
 #'
 #' Calculates posterior probabilities for individual ethnorace categories using
-#' the Naive Bayes algorithm. Also returns highest predicted race as a new
-#' string column in the data frame.
+#' the Naive Bayes algorithm. Also returns highest probability ethnorace as a
+#' new character column in the data frame.
 #'
-#' @param input_data The input data frame containing the individuals whose ethnorace
-#'   the user wants to predict.
+#' @param input_data The input data frame containing the individuals whose
+#'   ethnorace the user wants to impute. The following input variables are
+#'   supported: `last_name`, `first_name`, `age`, `sex`, `party`, `multi_unit`,
+#'   `state`, `county`, `zip`, `place`, `tract`, `district`, `block`.
 #'
-#' @param bper_data The data list containing ethnorace conditional
+#' @param bper_data The input data list containing ethnorace conditional
 #'   probabilities. If left empty, will default to downloading directly from
-#'   Census API. Use the function `load_bper_data` to save this data ahead of
-#'   time.
+#'   Census API. Use the function \code{\link{load_bper_data}} to save this
+#'   input data list ahead of time.
 #'
-#' @param year The year for which Census data will be loaded.
+#' @param year The year for which Census data will be loaded. The function will
+#'   retrieve the closest available Census data for the year.
 #'
-#' @return Returns the original data.frame with the additional columns for
-#'   ethnorace probabilities and predicted category.
+#' @param census_key Personal Census API key. See
+#'   https://api.census.gov/data/key_signup.html
+#'
+#' @return The original data frame with the additional columns for ethnorace
+#'   probabilities and highest probability imputed category.
 #'
 #' @export
-predict_ethnorace <- function(input_data = example_persons, bper_data = NULL, year) {
+impute_ethnorace <- function(input_data,
+                              bper_data = NULL,
+                              year,
+                              census_key = NULL) {
+
   if (is.null(bper_data)) {
-    bper_data <- load_bper_data(input_data, year = year)
+    bper_data <- load_bper_data(input_data = input_data,
+                                year = year,
+                                census_key = census_key)
   }
 
   original_columns <- colnames(input_data)

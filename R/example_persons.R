@@ -1,7 +1,8 @@
+
 #' Example Persons Data Set
 #'
 #' All individuals, except the first row, are randomly generated from the
-#' ethnorace distribution data sets.
+#' input ethnorace distribution data.
 #'
 #' @export
 example_persons <- tibble(
