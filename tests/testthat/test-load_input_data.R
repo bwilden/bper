@@ -1,10 +1,12 @@
 
+Sys.setenv(CENSUS_KEY = "5e4c2b8438222753a7f4753fa78855eca73b9950")
+
 # Last Names --------------------------------------------------------------
 
 last_names_test <- load_surnames_data(year = 2010)
 
 test_that("surnames data loads", {
-  expect_is(last_names_test, "data.frame")
+  expect_s3_class(last_names_test, "data.frame")
 })
 
 
@@ -13,7 +15,7 @@ test_that("surnames data loads", {
 first_names_test <- load_first_names_data()
 
 test_that("first names data loads", {
-  expect_is(first_names_test, "data.frame")
+  expect_s3_class(first_names_test, "data.frame")
 })
 
 
@@ -22,7 +24,7 @@ test_that("first names data loads", {
 parties_test <- load_parties_data(year = 2010)
 
 test_that("parties data loads", {
-  expect_is(parties_test, "data.frame")
+  expect_s3_class(parties_test, "data.frame")
 })
 
 
@@ -31,7 +33,7 @@ test_that("parties data loads", {
 multi_unit_test <- load_multi_unit_data(year = 2010)
 
 test_that("multi_unit data loads", {
-  expect_is(multi_unit_test, "data.frame")
+  expect_s3_class(multi_unit_test, "data.frame")
 })
 
 
@@ -40,10 +42,10 @@ test_that("multi_unit data loads", {
 sex_ages_test <- load_sex_age_data(year = 2010)
 
 test_that("sex_ages data loads", {
-  expect_is(sex_ages_test, "list")
-  expect_is(sex_ages_test$sex_ages, "data.frame")
-  expect_is(sex_ages_test$sexes, "data.frame")
-  expect_is(sex_ages_test$ages, "data.frame")
+  expect_type(sex_ages_test, "list")
+  expect_s3_class(sex_ages_test$sex_ages, "data.frame")
+  expect_s3_class(sex_ages_test$sexes, "data.frame")
+  expect_s3_class(sex_ages_test$ages, "data.frame")
 })
 
 
@@ -52,5 +54,5 @@ test_that("sex_ages data loads", {
 geos_test <- load_geo_data(geo_level = "state", year = 2010)
 
 test_that("geos data loads", {
-  expect_is(geos_test, "data.frame")
+  expect_s3_class(geos_test, "data.frame")
 })
