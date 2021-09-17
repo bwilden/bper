@@ -21,14 +21,99 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/bwilden/bper/workflows/R-CMD-check/badge.svg)](https://github.com/bwilden/bper/actions)
 <!-- badges: end -->
 
-This package provides functions for predicting an individual's race/ethnicity given their first name, last name, geolocation, political party, age, gender, and address characteristics. The method is based on a Naive Bayes classification algorithm which incorporates known ethnorace distributions over the observed characteristics to generate posterior probabilities for each individual.
+This package provides functions for imputing an individual's race/ethnicity given their first name, last name, geolocation, political party, age, gender, and address characteristics. The method is based on a Naive Bayes classification algorithm which incorporates known ethnorace distributions over the observed characteristics to generate posterior probabilities for each individual.
 
 ## Installation
 
-You can install the development version from with:
+You can install the development version with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("bwilden/bper")
+```
+
+
+## Usage
+
+The data necessary for the imputation algorithm come from the US Census API. You will need a Census API key in order to use the package (https://api.census.gov/data/key_signup.html). 
+
+```{r}
+library(bper)
+
+example_persons
+```
+
+### Step 1: Prepare input data
+
+The `bper` package works by matching Census data to column names in your input data frame. To ensure all possible information is used in the imputation algorithm, reformat your variables in the following way:
+
+- `first_name`. A character variable. Remove all punctuation and white spaces.
+- `last_name`. A character variable. Remove all punctuation and white spaces.
+- `age`. A numeric variable.
+- `sex`. A numeric variable with `1` corresponding to female and `0` corresponding to male.
+- `party`. A character variable. Available categories are `DEM` for Democratic, `REP` for Republican, and `UNA` for independent/other.
+- `multi_unit`. A numeric variable with `1` corresponding to residence in multi-unit housing (typically an address containing "Apt", "Unit", "#") and `0` corresponding to residence in single-unit housing.
+- `state`. A character variable with the 2 letter state abbreviation.
+- `county`. A character variable with the 3 digit FIPS county code.
+- `tract`. A character variable with the 6 digit Census tract code.
+- `block`. A character variable with the 4 digit Census block code.
+- `place`. A character variable with the 6 digit Census place code.
+- `zip`. A character variable with the 5 digit ZIP code.
+
+Not all of the above variables are required (only the most detailed geographic variable is used), but more information leads to better predictions.
+
+### Step 2: Pre-load Census data (optional)
+
+The function `load_bper_data` allows you to load the Census data necessary for the imputation algorithm ahead of time. This can be a big time-saver particularly when using detailed geographic inputs (tracts or blocks). 
+
+```{r, eval=F}
+my_bper_data <- load_bper_data(
+  input_data = example_persons,
+  year = 2010,
+  census_key = "your_census_key"
+)
+
+save(my_bper_data, file = "my_bper_data.rda")
+```
+
+### Step 3: Impute race/ethnicity
+
+Use `impute_ethnorace` to implement the race/ethnicity imputation algorithm.
+
+```{r, eval=F}
+# Method 1, loading Census data and imputing ethnorace
+imputed_data <- impute_ethnorace(
+  input_data = example_persons,
+  year = 2010,
+  census_key = "your_census_key"
+)
+
+# Method 2, using pre-loaded Census data
+imputed_data <- impute_ethnorace(
+  input_data = example_persons,
+  bper_data = my_bper_data,
+  year = 2010,
+  census_key = "your_census_key"
+)
+```
+
+Final result:
+
+```{r, echo=F, message=F}
+as.data.frame(
+  impute_ethnorace(
+    input_data = subset(
+      example_persons,
+      select = c("first_name",
+                 "last_name",
+                 "age",
+                 "sex",
+                 "state",
+                 "county")
+    ),
+    year = 2010,
+    census_key = "5e4c2b8438222753a7f4753fa78855eca73b9950"
+  )
+)
 ```
 
