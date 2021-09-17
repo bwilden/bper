@@ -15,7 +15,7 @@
 #' @param census_key Personal Census API key. See
 #'   https://api.census.gov/data/key_signup.html
 #'
-#' @return A list with input data objects necessary for
+#' @return A list with data objects necessary for
 #'   \code{\link{impute_ethnorace}}.
 #'
 #' @export

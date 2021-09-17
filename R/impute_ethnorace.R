@@ -10,10 +10,10 @@
 #'   supported: `last_name`, `first_name`, `age`, `sex`, `party`, `multi_unit`,
 #'   `state`, `county`, `zip`, `place`, `tract`, `district`, `block`.
 #'
-#' @param bper_data The input data list containing ethnorace conditional
+#' @param bper_data The data list containing ethnorace conditional
 #'   probabilities. If left empty, will default to downloading directly from
-#'   Census API. Use the function \code{\link{load_bper_data}} to save this
-#'   input data list ahead of time.
+#'   Census API. Use the function \code{\link{load_bper_data}} to save this data
+#'   list ahead of time.
 #'
 #' @param year The year for which Census data will be loaded. The function will
 #'   retrieve the closest available Census data for the year.
