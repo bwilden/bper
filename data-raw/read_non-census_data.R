@@ -57,5 +57,4 @@ bper_geos <- c("state", "county", "zip", "place", "tract", "block", "district")
 
 usethis::use_data(ethnorace_set, bper_vars, bper_geos,
                   internal = T,
-                  overwrite = T,
-                  version = 3)
+                  overwrite = T)
