@@ -5,9 +5,6 @@
 
 <!-- badges: start -->
 
-[![Codecov test
-coverage](https://codecov.io/gh/bwilden/bper/branch/main/graph/badge.svg)](https://codecov.io/gh/bwilden/bper?branch=main)
-[![R-CMD-check](https://github.com/bwilden/bper/workflows/R-CMD-check/badge.svg)](https://github.com/bwilden/bper/actions)
 <!-- badges: end -->
 
 This package provides functions for imputing an individual’s
@@ -36,7 +33,7 @@ API. You will need a Census API key in order to use the package
 library(bper)
 
 example_persons
-#> # A tibble: 10 x 12
+#> # A tibble: 10 × 12
 #>    first_name last_name   age   sex party multi_unit state county tract  block
 #>    <chr>      <chr>     <dbl> <dbl> <chr>      <dbl> <chr> <chr>  <chr>  <chr>
 #>  1 BERT       WILDEN       28     0 DEM            1 LA    019    002201 3036 
