@@ -28,12 +28,14 @@
 impute_ethnorace <- function(input_data,
                              bper_data = NULL,
                              year,
-                             census_key = "5e4c2b8438222753a7f4753fa78855eca73b9950") {
+                             census_key = "5e4c2b8438222753a7f4753fa78855eca73b9950",
+                             ...) {
 
   if (is.null(bper_data)) {
     bper_data <- load_bper_data(input_data = input_data,
                                 year = year,
-                                census_key = census_key)
+                                census_key = census_key,
+                                ...)
   }
 
   original_columns <- colnames(input_data)
