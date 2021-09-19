@@ -4,7 +4,14 @@
 \alias{load_bper_data}
 \title{Load data for \code{\link{impute_ethnorace}} function}
 \usage{
-load_bper_data(input_data, year, census_key)
+load_bper_data(
+  input_data,
+  year,
+  census_key = "5e4c2b8438222753a7f4753fa78855eca73b9950",
+  ll = list(last_name = 1, first_name = 1, state = 1, county = 1, zip = 1, place = 1,
+    tract = 1, district = 1, block = 1),
+  ...
+)
 }
 \arguments{
 \item{input_data}{The input data frame containing the individuals whose
@@ -19,7 +26,7 @@ retrieve the closest available Census data for the year.}
 https://api.census.gov/data/key_signup.html}
 }
 \value{
-A list with input data objects necessary for
+A list with data objects necessary for
 \code{\link{impute_ethnorace}}.
 }
 \description{

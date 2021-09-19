@@ -4,7 +4,13 @@
 \alias{impute_ethnorace}
 \title{Impute Ethnicity/Race}
 \usage{
-impute_ethnorace(input_data, bper_data = NULL, year, census_key = NULL)
+impute_ethnorace(
+  input_data,
+  bper_data = NULL,
+  year,
+  census_key = "5e4c2b8438222753a7f4753fa78855eca73b9950",
+  ...
+)
 }
 \arguments{
 \item{input_data}{The input data frame containing the individuals whose
@@ -12,10 +18,10 @@ ethnorace the user wants to impute. The following input variables are
 supported: \code{last_name}, \code{first_name}, \code{age}, \code{sex}, \code{party}, \code{multi_unit},
 \code{state}, \code{county}, \code{zip}, \code{place}, \code{tract}, \code{district}, \code{block}.}
 
-\item{bper_data}{The input data list containing ethnorace conditional
+\item{bper_data}{The data list containing ethnorace conditional
 probabilities. If left empty, will default to downloading directly from
-Census API. Use the function \code{\link{load_bper_data}} to save this
-input data list ahead of time.}
+Census API. Use the function \code{\link{load_bper_data}} to save this data
+list ahead of time.}
 
 \item{year}{The year for which Census data will be loaded. The function will
 retrieve the closest available Census data for the year.}
