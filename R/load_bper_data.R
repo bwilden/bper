@@ -22,15 +22,17 @@
 load_bper_data <- function(input_data,
                            year,
                            census_key = "5e4c2b8438222753a7f4753fa78855eca73b9950",
-                           ll = list("last_name" = 1,
-                                     "first_name" = 1,
-                                     "state" = 1,
-                                     "county" = 1,
-                                     "zip" = 1,
-                                     "place" = 1,
-                                     "tract" = 1,
-                                     "district" = 1,
-                                     "block" = 1)) {
+                           ll = list(
+                             "last_name" = 1,
+                             "first_name" = 1,
+                             "state" = 1,
+                             "county" = 1,
+                             "zip" = 1,
+                             "place" = 1,
+                             "tract" = 1,
+                             "district" = 1,
+                             "block" = 1),
+                           ...) {
   Sys.setenv(CENSUS_KEY = census_key)
 
   input_vars <- c()
