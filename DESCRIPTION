@@ -6,7 +6,7 @@ Authors@R:
            family = "Wilden",
            role = c("aut", "cre"),
            email = "bwilden@ucsd.edu")
-Description: This package provides functions for predicting an individual’s 
+Description: This package provides functions for imputing an individual’s 
     race/ethnicity given their first name, last name, geolocation, 
     political party, age, gender, and address characteristics. 
     The method is based on a Naive Bayes classification algorithm 
@@ -31,4 +31,4 @@ Imports:
     here,
     censusapi
 Depends: 
-    R (>= 4.0)
+    R (>= 2.1)
