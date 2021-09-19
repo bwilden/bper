@@ -14,7 +14,7 @@ Description: This package provides functions for predicting an individual’s
     characteristics to generate posterior probabilities for each individual.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests:
