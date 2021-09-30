@@ -120,7 +120,7 @@ bper_naive_bayes <- function(data,
                              priors_set,
                              weights = list(
                                "aian" = 1,
-                               "api" = 1,
+                               "aapi" = 1,
                                "black" = 1,
                                "hispanic" = 1,
                                "other" = 1,
@@ -132,8 +132,8 @@ bper_naive_bayes <- function(data,
       mutate(
         norm_factor = !!sym(paste0("pr_aian|", prior)) *
           prod(c_across(ends_with("aian") &
-                          !contains(prior)))+!!sym(paste0("pr_api|", prior)) *
-          prod(c_across(ends_with("api") & !contains(prior)))+!!sym(paste0("pr_black|", prior)) *
+                          !contains(prior)))+!!sym(paste0("pr_aapi|", prior)) *
+          prod(c_across(ends_with("aapi") & !contains(prior)))+!!sym(paste0("pr_black|", prior)) *
           prod(c_across(
             ends_with("black") & !contains(prior)
           ))+!!sym(paste0("pr_hispanic|", prior)) *
@@ -150,8 +150,8 @@ bper_naive_bayes <- function(data,
           prod(c_across(
             ends_with("|aian") & !contains(prior)
           )) / norm_factor,
-        "pp_api_{prior}" :=  !!sym(paste0("pr_api|", prior)) *
-          prod(c_across(ends_with("|api") &
+        "pp_aapi_{prior}" :=  !!sym(paste0("pr_aapi|", prior)) *
+          prod(c_across(ends_with("|aapi") &
                           !contains(prior))) / norm_factor,
         "pp_black_{prior}" := !!sym(paste0("pr_black|", prior)) *
           prod(c_across(
@@ -177,7 +177,7 @@ bper_naive_bayes <- function(data,
   data <- data %>%
     mutate(
       pred_aian = rowMeans(across(contains("pp_aian"))) * weights$aian,
-      pred_api = rowMeans(across(contains("pp_api"))) * weights$api,
+      pred_aapi = rowMeans(across(contains("pp_aapi"))) * weights$aapi,
       pred_black = rowMeans(across(contains("pp_black"))) * weights$black,
       pred_hispanic = rowMeans(across(contains("pp_hispanic"))) * weights$hispanic,
       pred_other = rowMeans(across(contains("pp_other"))) * weights$other,

@@ -103,8 +103,8 @@ load_multi_unit_data <- function(year) {
       c("B25032A", "white"),
       c("B25032B", "black"),
       c("B25032C", "aian"),
-      c("B25032D", "api"),
-      c("B25032E", "api"),
+      c("B25032D", "aapi"),
+      c("B25032E", "aapi"),
       c("B25032F", "other"),
       c("B25032G", "other"),
       c("B25032I", "hispanic")
@@ -112,12 +112,12 @@ load_multi_unit_data <- function(year) {
   } else if (closest_year == 2000) {
     census_file <- "dec/sf3"
     census_groups <- list(
-      c("HCT030E", "api"),
+      c("HCT030E", "aapi"),
       c("HCT030F", "other"),
       c("HCT030G", "other"),
       c("HCT030B", "black"),
       c("HCT030C", "aian"),
-      c("HCT030D", "api"),
+      c("HCT030D", "aapi"),
       c("HCT030I", "white"),
       c("HCT030H", "hispanic")
     )
@@ -173,8 +173,8 @@ load_sex_age_data <- function(year) {
       c("PCT12I", "white"),
       c("PCT12J", "black"),
       c("PCT12K", "aian"),
-      c("PCT12L", "api"),
-      c("PCT12M", "api"),
+      c("PCT12L", "aapi"),
+      c("PCT12M", "aapi"),
       c("PCT12N", "other"),
       c("PCT12O", "other"),
       c("PCT12H", "hispanic")
@@ -184,8 +184,8 @@ load_sex_age_data <- function(year) {
       c("PCT012I", "white"),
       c("PCT012J", "black"),
       c("PCT012K", "aian"),
-      c("PCT012L", "api"),
-      c("PCT012M", "api"),
+      c("PCT012L", "aapi"),
+      c("PCT012M", "aapi"),
       c("PCT012N", "other"),
       c("PCT012O", "other"),
       c("PCT012H", "hispanic")
@@ -360,7 +360,7 @@ load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 1) {
             white = B03002_003E,
             black = B03002_004E,
             aian = B03002_005E,
-            api = B03002_006E + B03002_007E,
+            aapi = B03002_006E + B03002_007E,
             other = B03002_008E + B03002_009E + B03002_010E + B03002_011E,
             hispanic = B03002_012E
           )
@@ -370,7 +370,7 @@ load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 1) {
             white = P008003,
             black = P008004,
             aian = P008005,
-            api = P008006 + P008007,
+            aapi = P008006 + P008007,
             other = P008009 + P008008,
             hispanic = P008010
           )

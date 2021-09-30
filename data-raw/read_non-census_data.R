@@ -15,7 +15,7 @@ anes <- haven::read_dta(here::here("data-raw", "anes_timeseries_cdf.dta")) %>%
                           party == 3 ~ "REP"),
          ethnorace = case_when(ethnorace == 1 ~ "white",
                                ethnorace == 2 ~ "black",
-                               ethnorace == 3 ~ "api",
+                               ethnorace == 3 ~ "aapi",
                                ethnorace == 4 ~ "aian",
                                ethnorace == 5 ~ "hispanic",
                                ethnorace == 6 ~ "other",
@@ -26,7 +26,7 @@ anes <- haven::read_dta(here::here("data-raw", "anes_timeseries_cdf.dta")) %>%
   group_by(year_group, party) %>%
   summarise(white = sum(ethnorace == "white", na.rm = T),
             black = sum(ethnorace == "black", na.rm = T),
-            api = sum(ethnorace == "api", na.rm = T),
+            aapi = sum(ethnorace == "aapi", na.rm = T),
             aian = sum(ethnorace == "aian", na.rm = T),
             hispanic = sum(ethnorace == "hispanic", na.rm = T),
             other = sum(ethnorace == "other", na.rm = T)) %>%
@@ -38,7 +38,7 @@ state_codes <- readr::read_csv(here::here("data-raw", "state_code_conc.csv")) %>
   select(state_code, state = STUSAB)
 
 # Possible ethnorace outputs
-ethnorace_set <- c("aian", "api", "black", "hispanic", "other", "white")
+ethnorace_set <- c("aian", "aapi", "black", "hispanic", "other", "white")
 
 # Possible input data columns
 bper_vars <- c("last_names", "first_names", "sex_ages", "ages", "sexes", "parties", "multi_units",
