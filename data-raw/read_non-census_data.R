@@ -2,7 +2,8 @@
 # First names ethnorace data
 # Tzioumis (2018); https://www.nature.com/articles/sdata201825
 first_names <- readxl::read_xlsx(here::here("data-raw", "firstnames.xlsx"),
-                                 sheet = "Data")
+                                 sheet = "Data") %>%
+  rename(pctaapi = pctapi)
 
 # American National Election Survey for political party ethnorace data
 # https://electionstudies.org/data-center/anes-time-series-cumulative-data-file/
