@@ -121,7 +121,7 @@ load_bper_data <- function(input_data,
   # Put all loaded input data objects into one list
   bper_data <- as.list(environment())
   # Remove the original input data set to save memory
-  bper_data[length(bper_data)] <- NULL
+  bper_data$input_data <- NULL
 
   return(bper_data)
 }
