@@ -40,7 +40,9 @@ impute_ethnorace <- function(input_data,
 
   original_columns <- colnames(input_data)
 
-  input_data <- left_join(input_data, state_codes)
+  if ("states" %in% names(bper_data)) {
+    input_data <- left_join(input_data, state_codes)
+  }
 
   # Merge in input data that match columns in original data
   for (data_set in names(bper_data)) {
