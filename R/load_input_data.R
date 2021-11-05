@@ -20,6 +20,7 @@ load_surnames_data <- function(year, psuedocount = 1) {
       ),
       NAME = "*"
     ) %>%
+      rename(PCTAAPI = PCTAPI) %>%
       rename_with( ~ tolower(.), everything()) %>%
       mutate(
         count = as.numeric(count),
