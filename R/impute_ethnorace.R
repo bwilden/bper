@@ -120,13 +120,6 @@ impute_ethnorace <- function(input_data,
 # Naive Bayes computation function
 bper_naive_bayes <- function(data,
                              priors_set,
-                             weights = list(
-                               "aian" = 1,
-                               "aapi" = 1,
-                               "black" = 1,
-                               "hispanic" = 1,
-                               "other" = 1,
-                               "white" = 1),
                              ...) {
   for (prior in priors_set) {
     data <- data %>%
@@ -135,42 +128,29 @@ bper_naive_bayes <- function(data,
         norm_factor = !!sym(paste0("pr_aian|", prior)) *
           prod(c_across(ends_with("aian") &
                           !contains(prior)))+!!sym(paste0("pr_aapi|", prior)) *
-          prod(c_across(ends_with("aapi") & !contains(prior)))+!!sym(paste0("pr_black|", prior)) *
-          prod(c_across(
-            ends_with("black") & !contains(prior)
-          ))+!!sym(paste0("pr_hispanic|", prior)) *
+          prod(c_across(ends_with("aapi") &
+                          !contains(prior)))+!!sym(paste0("pr_black|", prior)) *
+          prod(c_across(ends_with("black") & !contains(prior)))+!!sym(paste0("pr_hispanic|", prior)) *
           prod(c_across(
             ends_with("hispanic") & !contains(prior)
           ))+!!sym(paste0("pr_other|", prior)) *
-          prod(c_across(
-            ends_with("other") & !contains(prior)
-          ))+!!sym(paste0("pr_white|", prior)) *
-          prod(c_across(
-            ends_with("white") & !contains(prior)
-          )),
+          prod(c_across(ends_with("other") & !contains(prior)))+!!sym(paste0("pr_white|", prior)) *
+          prod(c_across(ends_with("white") & !contains(prior))),
         "pp_aian_{prior}" := !!sym(paste0("pr_aian|", prior)) *
-          prod(c_across(
-            ends_with("|aian") & !contains(prior)
-          )) / norm_factor,
+          prod(c_across(ends_with("|aian") & !contains(prior))) / norm_factor,
         "pp_aapi_{prior}" :=  !!sym(paste0("pr_aapi|", prior)) *
           prod(c_across(ends_with("|aapi") &
                           !contains(prior))) / norm_factor,
         "pp_black_{prior}" := !!sym(paste0("pr_black|", prior)) *
-          prod(c_across(
-            ends_with("|black") & !contains(prior)
-          )) / norm_factor,
+          prod(c_across(ends_with("|black") & !contains(prior))) / norm_factor,
         "pp_hispanic_{prior}" := !!sym(paste0("pr_hispanic|", prior)) *
           prod(c_across(
             ends_with("|hispanic") & !contains(prior)
           )) / norm_factor,
         "pp_other_{prior}" := !!sym(paste0("pr_other|", prior)) *
-          prod(c_across(
-            ends_with("|other") & !contains(prior)
-          )) / norm_factor,
+          prod(c_across(ends_with("|other") & !contains(prior))) / norm_factor,
         "pp_white_{prior}" := !!sym(paste0("pr_white|", prior)) *
-          prod(c_across(
-            ends_with("|white") & !contains(prior)
-          )) / norm_factor
+          prod(c_across(ends_with("|white") & !contains(prior))) / norm_factor
       ) %>%
       select(-norm_factor) %>%
       ungroup()
@@ -178,12 +158,12 @@ bper_naive_bayes <- function(data,
 
   data <- data %>%
     mutate(
-      pred_aian = rowMeans(across(contains("pp_aian"))) * weights$aian,
-      pred_aapi = rowMeans(across(contains("pp_aapi"))) * weights$aapi,
-      pred_black = rowMeans(across(contains("pp_black"))) * weights$black,
-      pred_hispanic = rowMeans(across(contains("pp_hispanic"))) * weights$hispanic,
-      pred_other = rowMeans(across(contains("pp_other"))) * weights$other,
-      pred_white = rowMeans(across(contains("pp_white"))) * weights$white
+      pred_aian = rowMeans(across(contains("pp_aian"))),
+      pred_aapi = rowMeans(across(contains("pp_aapi"))),
+      pred_black = rowMeans(across(contains("pp_black"))),
+      pred_hispanic = rowMeans(across(contains("pp_hispanic"))),
+      pred_other = rowMeans(across(contains("pp_other"))),
+      pred_white = rowMeans(across(contains("pp_white")))
     ) %>%
     rowwise() %>%
     mutate(pred_race = purrr::pmap(across(contains("pred")),
