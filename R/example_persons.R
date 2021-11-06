@@ -6,10 +6,10 @@
 #'
 #' @export
 example_persons <- tibble(
-  first_name = c("BERT", "LYNDON", "BELINDA", "ANNA",
+  first_name = c("BERT", "LYNDON", "BELINDA", "ANNAA",
                  "KARL", "MATHIEU", "LIAM", "KAI", "PAMELLA", "WALT"),
   last_name = c("WILDEN", "WITHER", "LOBOS", "ARENA",
-                "SOM", "TURA", "SZYMONIAK", "WALKO", "CHANEL", "BROOKE"),
+                "SOM", "TURA", "SZYMONIAK", "WALKO", "CHANELLL", "BROOKE"),
   age = c(28, 30, 33, 90, 13, 50, 20, 78, 65, 18),
   sex = c(0, 0, 1, 1, 0, 0, 1, 1, 1, 0),
   party = c("DEM", "DEM", "DEM", "REP", "UNA", "DEM", "REP", "UNA", "DEM", "REP"),
