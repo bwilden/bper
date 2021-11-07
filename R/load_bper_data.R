@@ -37,79 +37,79 @@ load_bper_data <- function(input_data,
 
   input_vars <- c()
   if ("last_name" %in% colnames(input_data)) {
-    last_names <- load_surnames_data(year = year,
+    last_name <- load_surnames_data(year = year,
                                      psuedocount = ll$last_name)
     input_vars <- c(input_vars, "last")
   }
   if ("first_name" %in% colnames(input_data)) {
-    first_names <- load_first_names_data(psuedocount = ll$first_name)
+    first_name <- load_first_names_data(psuedocount = ll$first_name)
     input_vars <- c(input_vars, "first")
   }
   if ("party" %in% colnames(input_data)) {
-    parties <- load_parties_data(year = year)
+    party <- load_parties_data(year = year)
     input_vars <- c(input_vars, "party")
   }
   if ("multi_unit" %in% colnames(input_data)) {
-    multi_units <- load_multi_unit_data(year = year)
+    multi_unit <- load_multi_unit_data(year = year)
     input_vars <- c(input_vars, "multi-unit")
   }
 
   if ("sex" %in% colnames(input_data) &
       "age" %in% colnames(input_data)) {
-    sex_ages <- load_sex_age_data(year)$sex_ages
+    sex_age <- load_sex_age_data(year)$sex_ages
     input_vars <- c(input_vars, "sex-age")
   } else if ("sex" %in% colnames(input_data)) {
-    sexes <- load_sex_age_data(year)$sexes
+    sex <- load_sex_age_data(year)$sexes
     input_vars <- c(input_vars, "sex")
   } else if ("age" %in% colnames(input_data)) {
-    ages <- load_sex_age_data(year)$ages
+    age <- load_sex_age_data(year)$ages
     input_vars <- c(input_vars, "age")
   }
 
   if ("state" %in% colnames(input_data)) {
     input_states <- unique(input_data$state)
-    states <-
+    state <-
       load_geo_data(geo_level = "state",
                     states = input_states,
                     year = year,
                     psuedocount = ll$state)
     if ("county" %in% colnames(input_data)) {
-      counties <-
+      county <-
         load_geo_data(geo_level = "county",
                       states = input_states,
                       year = year,
                       psuedocount = ll$county)
     }
     if ("zip" %in% colnames(input_data)) {
-      zips <-
+      zip <-
         load_geo_data(geo_level = "zip",
                       states = input_states,
                       year = year,
                       psuedocount = ll$zip)
     }
     if ("place" %in% colnames(input_data)) {
-      places <-
+      place <-
         load_geo_data(geo_level = "place",
                       states = input_states,
                       year = year,
                       psuedocount = ll$place)
     }
     if ("tract" %in% colnames(input_data)) {
-      tracts <-
+      tract <-
         load_geo_data(geo_level = "tract",
                       states = input_states,
                       year = year,
                       psuedocount = ll$tract)
     }
     if ("district" %in% colnames(input_data)) {
-      districts <-
+      district <-
         load_geo_data(geo_level = "congressional district",
                       states = input_states,
                       year = year,
                       psuedocount = ll$district)
     }
     if ("block" %in% colnames(input_data)) {
-      blocks <-
+      block <-
         load_geo_data(geo_level = "block",
                       state = input_states,
                       year = year,
