@@ -39,16 +39,17 @@ impute_ethnorace <- function(input_data,
   }
 
   original_columns <- colnames(input_data)
+  input_vars <- intersect(intersect(names(bper_data), bper_vars),
+                          c(original_columns, "sex_age"))
 
-  if ("states" %in% names(bper_data)) {
+  # Merge state code crosswalk if state column in data
+  if ("state" %in% names(bper_data)) {
     input_data <- left_join(input_data, state_codes)
   }
 
   # Merge in input data that match columns in original data
-  for (data_set in names(bper_data)) {
-    if (data_set %in% bper_vars) {
+  for (data_set in input_vars) {
       input_data <- left_join(input_data, bper_data[[data_set]])
-    }
   }
 
   # Fill in missing geography columns
@@ -125,32 +126,30 @@ bper_naive_bayes <- function(data,
     data <- data %>%
       rowwise() %>%
       mutate(
-        norm_factor = !!sym(paste0("pr_aian|", prior)) *
-          prod(c_across(ends_with("aian") &
-                          !contains(prior)))+!!sym(paste0("pr_aapi|", prior)) *
-          prod(c_across(ends_with("aapi") &
-                          !contains(prior)))+!!sym(paste0("pr_black|", prior)) *
-          prod(c_across(ends_with("black") & !contains(prior)))+!!sym(paste0("pr_hispanic|", prior)) *
-          prod(c_across(
-            ends_with("hispanic") & !contains(prior)
-          ))+!!sym(paste0("pr_other|", prior)) *
-          prod(c_across(ends_with("other") & !contains(prior)))+!!sym(paste0("pr_white|", prior)) *
-          prod(c_across(ends_with("white") & !contains(prior))),
-        "pp_aian_{prior}" := !!sym(paste0("pr_aian|", prior)) *
-          prod(c_across(ends_with("|aian") & !contains(prior))) / norm_factor,
-        "pp_aapi_{prior}" :=  !!sym(paste0("pr_aapi|", prior)) *
-          prod(c_across(ends_with("|aapi") &
-                          !contains(prior))) / norm_factor,
-        "pp_black_{prior}" := !!sym(paste0("pr_black|", prior)) *
-          prod(c_across(ends_with("|black") & !contains(prior))) / norm_factor,
-        "pp_hispanic_{prior}" := !!sym(paste0("pr_hispanic|", prior)) *
-          prod(c_across(
-            ends_with("|hispanic") & !contains(prior)
-          )) / norm_factor,
-        "pp_other_{prior}" := !!sym(paste0("pr_other|", prior)) *
-          prod(c_across(ends_with("|other") & !contains(prior))) / norm_factor,
-        "pp_white_{prior}" := !!sym(paste0("pr_white|", prior)) *
-          prod(c_across(ends_with("|white") & !contains(prior))) / norm_factor
+        norm_factor = .prod(!!sym(paste0("pr_aian|", prior)),
+              c_across(ends_with("aian") & !contains(prior))) +
+          .prod(!!sym(paste0("pr_aapi|", prior)),
+              c_across(ends_with("aapi") & !contains(prior))) +
+          .prod(!!sym(paste0("pr_black|", prior)),
+              c_across(ends_with("black") & !contains(prior))) +
+          .prod(!!sym(paste0("pr_hispanic|", prior)),
+              c_across(ends_with("hispanic") & !contains(prior))) +
+          .prod(!!sym(paste0("pr_other|", prior)),
+              c_across(ends_with("other") & !contains(prior))) +
+          .prod(!!sym(paste0("pr_white|", prior)),
+              c_across(ends_with("white") & !contains(prior))),
+        "pp_aian_{prior}" := .prod(!!sym(paste0("pr_aian|", prior)),
+          c_across(ends_with("|aian") & !contains(prior))) / norm_factor,
+        "pp_aapi_{prior}" :=  .prod(!!sym(paste0("pr_aapi|", prior)),
+          c_across(ends_with("|aapi") & !contains(prior))) / norm_factor,
+        "pp_black_{prior}" := .prod(!!sym(paste0("pr_black|", prior)),
+          c_across(ends_with("|black") & !contains(prior))) / norm_factor,
+        "pp_hispanic_{prior}" := .prod(!!sym(paste0("pr_hispanic|", prior)),
+          c_across(ends_with("|hispanic") & !contains(prior))) / norm_factor,
+        "pp_other_{prior}" := .prod(!!sym(paste0("pr_other|", prior)),
+          c_across(ends_with("|other") & !contains(prior))) / norm_factor,
+        "pp_white_{prior}" := .prod(!!sym(paste0("pr_white|", prior)),
+          c_across(ends_with("|white") & !contains(prior))) / norm_factor
       ) %>%
       select(-norm_factor) %>%
       ungroup()
