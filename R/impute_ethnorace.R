@@ -30,6 +30,7 @@ impute_ethnorace <- function(input_data,
                              year,
                              census_key = "5e4c2b8438222753a7f4753fa78855eca73b9950",
                              ...) {
+  start_time <- Sys.time()
 
   if (is.null(bper_data)) {
     bper_data <- load_bper_data(input_data = input_data,
@@ -37,6 +38,8 @@ impute_ethnorace <- function(input_data,
                                 census_key = census_key,
                                 ...)
   }
+  print("bper_data loaded:")
+  print(Sys.time() - start_time)
 
   original_columns <- colnames(input_data)
   input_vars <- intersect(intersect(names(bper_data), bper_vars),
@@ -108,51 +111,99 @@ impute_ethnorace <- function(input_data,
   # Perform ethnorace probability calculations
   input_data <- input_data %>%
     bper_naive_bayes(priors_set = bper_data$input_vars,
+                     start_time = start_time,
                      ...)
 
   # Remove extraneous posterior probability columns
   input_data <- input_data %>%
      select(all_of(original_columns), contains("pred_"))
 
+  print("Finished in:")
+  print(Sys.time() - start_time)
   return(input_data)
 }
 
-
-# Naive Bayes computation function
 bper_naive_bayes <- function(data,
                              priors_set,
+                             start_time,
                              ...) {
+  data <- data %>%
+    mutate(across(contains("pr_"), ~ replace_na(., 1)))
+
   for (prior in priors_set) {
-    data <- data %>%
-      rowwise() %>%
-      mutate(
-        norm_factor = .prod(!!sym(paste0("pr_aian|", prior)),
-              c_across(ends_with("aian") & !contains(prior))) +
-          .prod(!!sym(paste0("pr_aapi|", prior)),
-              c_across(ends_with("aapi") & !contains(prior))) +
-          .prod(!!sym(paste0("pr_black|", prior)),
-              c_across(ends_with("black") & !contains(prior))) +
-          .prod(!!sym(paste0("pr_hispanic|", prior)),
-              c_across(ends_with("hispanic") & !contains(prior))) +
-          .prod(!!sym(paste0("pr_other|", prior)),
-              c_across(ends_with("other") & !contains(prior))) +
-          .prod(!!sym(paste0("pr_white|", prior)),
-              c_across(ends_with("white") & !contains(prior))),
-        "pp_aian_{prior}" := .prod(!!sym(paste0("pr_aian|", prior)),
-          c_across(ends_with("|aian") & !contains(prior))) / norm_factor,
-        "pp_aapi_{prior}" :=  .prod(!!sym(paste0("pr_aapi|", prior)),
-          c_across(ends_with("|aapi") & !contains(prior))) / norm_factor,
-        "pp_black_{prior}" := .prod(!!sym(paste0("pr_black|", prior)),
-          c_across(ends_with("|black") & !contains(prior))) / norm_factor,
-        "pp_hispanic_{prior}" := .prod(!!sym(paste0("pr_hispanic|", prior)),
-          c_across(ends_with("|hispanic") & !contains(prior))) / norm_factor,
-        "pp_other_{prior}" := .prod(!!sym(paste0("pr_other|", prior)),
-          c_across(ends_with("|other") & !contains(prior))) / norm_factor,
-        "pp_white_{prior}" := .prod(!!sym(paste0("pr_white|", prior)),
-          c_across(ends_with("|white") & !contains(prior))) / norm_factor
-      ) %>%
-      select(-norm_factor) %>%
-      ungroup()
+    data$norm_factor <-
+      data[[paste0("pr_aian|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|aian") &
+                !contains(prior)
+            ))) +
+      data[[paste0("pr_aapi|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|aapi") &
+                !contains(prior)
+            ))) +
+      data[[paste0("pr_black|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|black") &
+                !contains(prior)
+            ))) +
+      data[[paste0("pr_hispanic|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|hispanic") &
+                !contains(prior)
+            ))) +
+      data[[paste0("pr_other|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|other") &
+                !contains(prior)
+            ))) +
+      data[[paste0("pr_white|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|white") &
+                !contains(prior)
+            )))
+
+    data[[paste0("pp_aian_", prior)]] <-
+      data[[paste0("pr_aian|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|aian") &
+                !contains(prior)
+            ))) / data$norm_factor
+    data[[paste0("pp_aapi_", prior)]] <-
+      data[[paste0("pr_aapi|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|aapi") &
+                !contains(prior)
+            ))) / data$norm_factor
+    data[[paste0("pp_black_", prior)]] <-
+      data[[paste0("pr_black|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|black") &
+                !contains(prior)
+            ))) / data$norm_factor
+    data[[paste0("pp_hispanic_", prior)]] <-
+      data[[paste0("pr_hispanic|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|hispanic") &
+                !contains(prior)
+            ))) / data$norm_factor
+    data[[paste0("pp_other_", prior)]] <-
+      data[[paste0("pr_other|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|other") &
+                !contains(prior)
+            ))) / data$norm_factor
+    data[[paste0("pp_white_", prior)]] <-
+      data[[paste0("pr_white|", prior)]] *
+            matrixStats::rowProds(as.matrix(data %>% select(
+              ends_with("|white") &
+                !contains(prior)
+            ))) / data$norm_factor
+
+    data$norm_factor <- NULL
+
+    print(paste0("Posterior probs for ", prior, " calculated:"))
+    print(Sys.time() - start_time)
   }
 
   data <- data %>%
@@ -163,13 +214,82 @@ bper_naive_bayes <- function(data,
       pred_hispanic = rowMeans(across(contains("pp_hispanic"))),
       pred_other = rowMeans(across(contains("pp_other"))),
       pred_white = rowMeans(across(contains("pp_white")))
-    ) %>%
-    rowwise() %>%
-    mutate(pred_race = purrr::pmap(across(contains("pred")),
-                                   ~ names(c(...)[which.max(c(...))]))) %>%
-    ungroup() %>%
+    )
+
+  data$pred_race <-
+    colnames(data %>% select(contains("pred_")))[max.col(data %>% select(contains("pred_")))]
+
+  data <- data %>%
     mutate(pred_race = gsub("pred_", "", pred_race)) %>%
     select(pred_race, everything())
 
+  print("Mean posterior probs calculated:")
+  print(Sys.time() - start_time)
+
   return(data)
 }
+
+# Naive Bayes computation function
+### TOO SLOW ###
+# bper_naive_bayes <- function(data,
+#                              priors_set,
+#                              start_time,
+#                              ...) {
+#   for (prior in priors_set) {
+#     data <- data %>%
+#       rowwise() %>%
+#       mutate(
+#         norm_factor = .prod(!!sym(paste0("pr_aian|", prior)),
+#               c_across(ends_with("aian") & !contains(prior))) +
+#           .prod(!!sym(paste0("pr_aapi|", prior)),
+#               c_across(ends_with("aapi") & !contains(prior))) +
+#           .prod(!!sym(paste0("pr_black|", prior)),
+#               c_across(ends_with("black") & !contains(prior))) +
+#           .prod(!!sym(paste0("pr_hispanic|", prior)),
+#               c_across(ends_with("hispanic") & !contains(prior))) +
+#           .prod(!!sym(paste0("pr_other|", prior)),
+#               c_across(ends_with("other") & !contains(prior))) +
+#           .prod(!!sym(paste0("pr_white|", prior)),
+#               c_across(ends_with("white") & !contains(prior))),
+#         "pp_aian_{prior}" := .prod(!!sym(paste0("pr_aian|", prior)),
+#           c_across(ends_with("|aian") & !contains(prior))) / norm_factor,
+#         "pp_aapi_{prior}" :=  .prod(!!sym(paste0("pr_aapi|", prior)),
+#           c_across(ends_with("|aapi") & !contains(prior))) / norm_factor,
+#         "pp_black_{prior}" := .prod(!!sym(paste0("pr_black|", prior)),
+#           c_across(ends_with("|black") & !contains(prior))) / norm_factor,
+#         "pp_hispanic_{prior}" := .prod(!!sym(paste0("pr_hispanic|", prior)),
+#           c_across(ends_with("|hispanic") & !contains(prior))) / norm_factor,
+#         "pp_other_{prior}" := .prod(!!sym(paste0("pr_other|", prior)),
+#           c_across(ends_with("|other") & !contains(prior))) / norm_factor,
+#         "pp_white_{prior}" := .prod(!!sym(paste0("pr_white|", prior)),
+#           c_across(ends_with("|white") & !contains(prior))) / norm_factor
+#       ) %>%
+#       select(-norm_factor) %>%
+#       ungroup()
+#     print(paste0("Posterior probs for ", prior, " calculated:"))
+#     print(Sys.time() - start_time)
+#   }
+#
+#   data <- data %>%
+#     mutate(
+#       pred_aian = rowMeans(across(contains("pp_aian"))),
+#       pred_aapi = rowMeans(across(contains("pp_aapi"))),
+#       pred_black = rowMeans(across(contains("pp_black"))),
+#       pred_hispanic = rowMeans(across(contains("pp_hispanic"))),
+#       pred_other = rowMeans(across(contains("pp_other"))),
+#       pred_white = rowMeans(across(contains("pp_white")))
+#     ) %>%
+#     rowwise() %>%
+#     mutate(pred_race = purrr::pmap(across(contains("pred")),
+#                                    ~ names(c(...)[which.max(c(...))]))) %>%
+#     ungroup() %>%
+#     mutate(pred_race = gsub("pred_", "", pred_race)) %>%
+#     select(pred_race, everything())
+#
+#   print("Mean posterior probs calculated:")
+#   print(Sys.time() - start_time)
+#
+#   return(data)
+# }
+
+
