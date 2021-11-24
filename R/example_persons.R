@@ -6,14 +6,14 @@
 #'
 #' @export
 example_persons <- tibble(
-  first_name = c("BERT", "LYNDON", "BELINDA", "ANNAA",
-                 "KARL", "MATHIEU", "LIAM", "KAI", "PAMELLA", "WALT"),
+  first_name = c("BERT", "SAM", "BELINDA", "ANNAA",
+                 "KARL", "WILLIAMS", "LIAM", "KAI", "PAMELLA", "WALT"),
   last_name = c("WILDEN", "WITHER", "LOBOS", "ARENA",
                 "SOM", "TURA", "SZYMONIAK", "WALKO", "CHANELLL", "BROOKE"),
-  age = c(28, 30, 33, 90, 13, 50, 20, 78, 65, 18),
+  age = c(28, 27, 33, 90, 13, 50, 20, 78, 65, 18),
   sex = c(0, 0, 1, 1, 0, 0, 1, 1, 1, 0),
   party = c("DEM", "DEM", "DEM", "REP", "UNA", "DEM", "REP", "UNA", "DEM", "REP"),
-  multi_unit = c(1, 0, 1, 1, 1, 1, 0, 1, 0, 0),
+  multi_unit = c(1, 1, 1, 1, 1, 1, 0, 1, 0, 0),
   state = c("LA", "LA", "LA", "NM", "NM", "LA", "NM", "LA", "LA", "NM"),
   county = c("019", "119", "071", "013", "001", "029", "045", "051", "047", "001"),
   tract = c("002201", "031400", "000616", "000700", "000108", "000400", "000401", "021804", "953101", "940600"),
