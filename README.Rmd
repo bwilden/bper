@@ -95,7 +95,7 @@ imputed_data <- impute_ethnorace(
 )
 ```
 
-Final result:
+### Final result:
 
 ```{r, echo=F, message=F}
 as.data.frame(
