@@ -7,7 +7,7 @@
 load_bper_data(
   input_data,
   year,
-  census_key = "5e4c2b8438222753a7f4753fa78855eca73b9950",
+  census_key,
   ll = list(last_name = 1, first_name = 1, state = 1, county = 1, zip = 1, place = 1,
     tract = 1, district = 1, block = 1),
   ...
