@@ -1,5 +1,7 @@
 Package: bper
 Title: Bayesian Prediction for Ethnicity and Race
+URL: https://github.com/bwilden/bper
+BugReports: https://github.com/bwilden/bper/issues
 Version: 1.0.0.9000
 Authors@R: 
     person(given = "Bertrand",

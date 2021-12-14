@@ -217,7 +217,9 @@ bper_naive_bayes <- function(data,
     )
 
   data$pred_race <-
-    colnames(data %>% select(contains("pred_")))[max.col(data %>% select(contains("pred_")))]
+    colnames(data %>%
+        select(contains("pred_")))[max.col(data %>%
+                                             select(contains("pred_")))]
 
   data <- data %>%
     mutate(pred_race = gsub("pred_", "", pred_race)) %>%

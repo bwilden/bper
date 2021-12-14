@@ -170,7 +170,7 @@ load_sex_age_data <- function(year) {
   closest_year <- data_years[which.min(abs(data_years - year))]
 
   if (closest_year == 2010) {
-    census_groups = list(
+    census_groups <- list(
       c("PCT12I", "white"),
       c("PCT12J", "black"),
       c("PCT12K", "aian"),
@@ -181,7 +181,7 @@ load_sex_age_data <- function(year) {
       c("PCT12H", "hispanic")
     )
   } else if (closest_year == 2000) {
-    census_groups = list(
+    census_groups <- list(
       c("PCT012I", "white"),
       c("PCT012J", "black"),
       c("PCT012K", "aian"),
