@@ -28,15 +28,13 @@
 impute_ethnorace <- function(input_data,
                              bper_data = NULL,
                              year,
-                             census_key,
-                             ...) {
+                             census_key) {
   start_time <- Sys.time()
 
   if (is.null(bper_data)) {
     bper_data <- load_bper_data(input_data = input_data,
                                 year = year,
-                                census_key = census_key,
-                                ...)
+                                census_key = census_key)
   }
   print("bper_data loaded:")
   print(Sys.time() - start_time)
@@ -110,8 +108,7 @@ impute_ethnorace <- function(input_data,
   # Perform ethnorace probability calculations
   input_data <- input_data %>%
     bper_naive_bayes(priors_set = bper_data$input_vars,
-                     start_time = start_time,
-                     ...)
+                     start_time = start_time)
 
   # Remove extraneous posterior probability columns
   input_data <- input_data %>%
@@ -124,8 +121,7 @@ impute_ethnorace <- function(input_data,
 
 bper_naive_bayes <- function(data,
                              priors_set,
-                             start_time,
-                             ...) {
+                             start_time) {
   data <- data %>%
     mutate(across(contains("pr_"), ~ replace_na(., 1)))
 

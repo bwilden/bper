@@ -141,6 +141,7 @@ load_multi_unit_data <- function(year) {
       select(group, multi_unit, single_unit)
 
     multi_units <- rbind(multi_units, group_multi_unit)
+
   }
 
   multi_units <- multi_units %>%

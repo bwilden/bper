@@ -21,30 +21,18 @@
 #' @export
 load_bper_data <- function(input_data,
                            year,
-                           census_key = NULL,
-                           ll = list(
-                             "last_name" = 1,
-                             "first_name" = 1,
-                             "state" = 1,
-                             "county" = 1,
-                             "zip" = 1,
-                             "place" = 1,
-                             "tract" = 1,
-                             "district" = 1,
-                             "block" = 1),
-                           ...) {
+                           census_key = NULL) {
   if (!is.null(census_key)) {
     Sys.setenv(CENSUS_KEY = census_key)
   }
 
   input_vars <- c()
   if ("last_name" %in% colnames(input_data)) {
-    last_name <- load_surnames_data(year = year,
-                                     psuedocount = ll$last_name)
+    last_name <- load_surnames_data(year = year)
     input_vars <- c(input_vars, "last")
   }
   if ("first_name" %in% colnames(input_data)) {
-    first_name <- load_first_names_data(psuedocount = ll$first_name)
+    first_name <- load_first_names_data()
     input_vars <- c(input_vars, "first")
   }
   if ("party" %in% colnames(input_data)) {
@@ -69,49 +57,42 @@ load_bper_data <- function(input_data,
     state <-
       load_geo_data(geo_level = "state",
                     states = input_states,
-                    year = year,
-                    psuedocount = ll$state)
+                    year = year)
     if ("county" %in% colnames(input_data)) {
       county <-
         load_geo_data(geo_level = "county",
                       states = input_states,
-                      year = year,
-                      psuedocount = ll$county)
+                      year = year)
     }
     if ("zip" %in% colnames(input_data)) {
       zip <-
         load_geo_data(geo_level = "zip",
                       states = input_states,
-                      year = year,
-                      psuedocount = ll$zip)
+                      year = year)
     }
     if ("place" %in% colnames(input_data)) {
       place <-
         load_geo_data(geo_level = "place",
                       states = input_states,
-                      year = year,
-                      psuedocount = ll$place)
+                      year = year)
     }
     if ("tract" %in% colnames(input_data)) {
       tract <-
         load_geo_data(geo_level = "tract",
                       states = input_states,
-                      year = year,
-                      psuedocount = ll$tract)
+                      year = year)
     }
     if ("district" %in% colnames(input_data)) {
       district <-
         load_geo_data(geo_level = "congressional district",
                       states = input_states,
-                      year = year,
-                      psuedocount = ll$district)
+                      year = year)
     }
     if ("block" %in% colnames(input_data)) {
       block <-
         load_geo_data(geo_level = "block",
                       state = input_states,
-                      year = year,
-                      psuedocount = ll$block)
+                      year = year)
     }
     input_vars <- c(input_vars, "geo")
   }
