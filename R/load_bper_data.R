@@ -21,7 +21,7 @@
 #' @export
 load_bper_data <- function(input_data,
                            year,
-                           census_key,
+                           census_key = NULL,
                            ll = list(
                              "last_name" = 1,
                              "first_name" = 1,
@@ -33,7 +33,9 @@ load_bper_data <- function(input_data,
                              "district" = 1,
                              "block" = 1),
                            ...) {
-  Sys.setenv(CENSUS_KEY = census_key)
+  if (!is.null(census_key)) {
+    Sys.setenv(CENSUS_KEY = census_key)
+  }
 
   input_vars <- c()
   if ("last_name" %in% colnames(input_data)) {
@@ -53,15 +55,11 @@ load_bper_data <- function(input_data,
     multi_unit <- load_multi_unit_data(year = year)
     input_vars <- c(input_vars, "multi-unit")
   }
-
-  if ("sex" %in% colnames(input_data) &
-      "age" %in% colnames(input_data)) {
-    sex_age <- load_sex_age_data(year)$sex_ages
-    input_vars <- c(input_vars, "sex-age")
-  } else if ("sex" %in% colnames(input_data)) {
+  if ("sex" %in% colnames(input_data)) {
     sex <- load_sex_age_data(year)$sexes
     input_vars <- c(input_vars, "sex")
-  } else if ("age" %in% colnames(input_data)) {
+  }
+  if ("age" %in% colnames(input_data)) {
     age <- load_sex_age_data(year)$ages
     input_vars <- c(input_vars, "age")
   }
