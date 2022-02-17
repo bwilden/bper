@@ -42,8 +42,7 @@ impute_ethnorace <- function(input_data,
   print(Sys.time() - start_time)
 
   original_columns <- colnames(input_data)
-  input_vars <- intersect(intersect(names(bper_data), bper_vars),
-                          c(original_columns, "sex_age"))
+  c_probability_data <- intersect(intersect(names(bper_data), bper_vars), original_columns)
 
   # Merge state code crosswalk if state column in data
   if ("state" %in% names(bper_data)) {
@@ -51,7 +50,7 @@ impute_ethnorace <- function(input_data,
   }
 
   # Merge in input data that match columns in original data
-  for (data_set in input_vars) {
+  for (data_set in c_probability_data) {
       input_data <- left_join(input_data, bper_data[[data_set]])
   }
 
@@ -131,6 +130,9 @@ bper_naive_bayes <- function(data,
     mutate(across(contains("pr_"), ~ replace_na(., 1)))
 
   for (prior in priors_set) {
+    if (sum(grepl(paste0("pr_", prior), names(data))) == 0) {
+      next
+    }
     data$norm_factor <-
       data[[paste0("pr_aian|", prior)]] *
             matrixStats::rowProds(as.matrix(data %>% select(
