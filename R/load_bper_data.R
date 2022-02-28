@@ -51,8 +51,8 @@ load_bper_data <- function(input_data,
       "age" %in% colnames(input_data)) {
     print("Loading sex and age data")
     sex_age <- load_sex_age_data(year)
-    sex <- sex_ages$sexes
-    age <- sex_ages$ages
+    sex <- sex_age$sexes
+    age <- sex_age$ages
     input_vars <- c(input_vars, "sex", "age")
   } else if ("sex" %in% colnames(input_data)) {
     print("Loading sex data")
