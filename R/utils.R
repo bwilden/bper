@@ -3,6 +3,6 @@
 `%notin%` <- Negate(`%in%`)
 
 # Product function with na.rm = TRUE as default
-.prod <- purrr::partial(prod, na.rm = TRUE)
+.rowProds <- purrr::partial(matrixStats::rowProds, na.rm = TRUE)
 
 
