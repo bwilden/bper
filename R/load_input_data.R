@@ -1,7 +1,7 @@
 
 # Last Names --------------------------------------------------------------
 
-load_surnames_data <- function(year, psuedocount = 5) {
+load_surnames_data <- function(year, psuedocount = 0.1) {
   data_years <- c(2000, 2010)
   closest_year <- data_years[which.min(abs(data_years - year))]
 
@@ -47,7 +47,7 @@ load_surnames_data <- function(year, psuedocount = 5) {
 
 # First Names -------------------------------------------------------------
 
-load_first_names_data <- function(psuedocount = 5) {
+load_first_names_data <- function(psuedocount = 0.1) {
   first_names <- first_names %>%
     mutate(
       across(contains("pct"),
@@ -281,7 +281,7 @@ load_sex_age_data <- function(year) {
 
 # Geo ---------------------------------------------------------------------
 
-load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 5) {
+load_geo_data <- function(geo_level, states = NULL, year, psuedocount = 0.1) {
   # Set closest year from years data is available
   if (geo_level == "block") {
     data_years <- c(2000, 2010)
